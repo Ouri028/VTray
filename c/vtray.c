@@ -42,7 +42,7 @@ LRESULT CALLBACK vtray_wndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam
     return 0;
 }
 
-struct VTray *vtray_init(const char *identifier, const char *icon)
+struct VTray *vtray_init(const char *identifier, const char *icon, wchar_t *tooltip)
 {
     struct VTray *tray = (struct VTray *)malloc(sizeof(struct VTray));
     if (!tray)
@@ -56,6 +56,7 @@ struct VTray *vtray_init(const char *identifier, const char *icon)
     strncpy(tray->identifier, identifier, sizeof(tray->identifier));
     // Initialize window class
     memset(&tray->windowClass, 0, sizeof(WNDCLASSEX));
+    tray->tooltip = tooltip;
     tray->windowClass.cbSize = sizeof(WNDCLASSEX);
     tray->windowClass.lpfnWndProc = vtray_wndProc;
     tray->windowClass.hInstance = tray->hInstance;
@@ -85,14 +86,15 @@ struct VTray *vtray_init(const char *identifier, const char *icon)
 
     // Initialize the NOTIFYICONDATA structure
     tray->notifyData.cbSize = sizeof(NOTIFYICONDATA);
+    wcscpy(tray->notifyData.szTip, tray->tooltip);
     tray->notifyData.hWnd = tray->hwnd;
     tray->notifyData.uID = ID_TRAYICON;
     tray->notifyData.uFlags = NIF_ICON | NIF_MESSAGE | NIF_TIP;
     tray->notifyData.uCallbackMessage = WM_TRAYICON;
-    tray->notifyData.hIcon = LoadIcon(NULL, IDI_APPLICATION); //(HICON)LoadImage(NULL, icon, IMAGE_ICON, 0, 0, LR_LOADFROMFILE);
     tray->hInstance = GetModuleHandle(NULL);
+    tray->notifyData.hIcon = LoadImageA(tray->hInstance, icon, IMAGE_ICON, 0, 0, LR_LOADFROMFILE | LR_DEFAULTSIZE);
 
-    // SetWindowLongPtr(tray->hwnd, GWLP_USERDATA, (LONG_PTR)tray);
+    SetWindowLongPtr(tray->hwnd, GWLP_USERDATA, (LONG_PTR)tray);
 
     if (Shell_NotifyIcon(NIM_ADD, &tray->notifyData) == FALSE)
     {
@@ -105,7 +107,6 @@ struct VTray *vtray_init(const char *identifier, const char *icon)
 
 void vtray_exit(struct VTray *tray)
 {
-    // Cleanup and exit your program.
     // Deallocate memory, destroy windows, etc.
 
     if (tray)
@@ -216,32 +217,4 @@ void vtray_run(struct VTray *tray)
         TranslateMessage(&msg);
         DispatchMessage(&msg);
     }
-}
-
-int main()
-{
-    struct VTray *tray = vtray_init("MyTray", "icon.ico");
-    if (!tray)
-    {
-        // Handle initialization failure
-        return 1;
-    }
-
-    // Define your VTrayEntry items here.
-
-    tray->menu = vtray_construct(tray->entries, tray->numEntries, tray, true);
-    if (!tray->menu)
-    {
-        // Handle menu creation failure
-        vtray_exit(tray);
-        return 1;
-    }
-
-    // Set up the system tray icon and menu.
-    vtray_run(tray);
-
-    // Clean up and exit
-    vtray_exit(tray);
-
-    return 0;
 }

@@ -1,5 +1,7 @@
 
-#include <Windows.h>
+#ifdef _WIN32
+#include <windows.h>
+#include <tchar.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -20,6 +22,7 @@ struct VTray
     WNDCLASSEX windowClass;
     HINSTANCE hInstance;
     HWND hwnd;
+    wchar_t *tooltip;
 };
 
 struct Allocation
@@ -37,9 +40,11 @@ struct VTrayEntry
     size_t numSubmenuEntries;
 };
 
-struct VTray *vtray_init(const char *identifier, const char *icon);
+struct VTray *vtray_init(const char *identifier, const char *icon, wchar_t *tooltip);
 void vtray_exit(struct VTray *tray);
 void vtray_update(struct VTray *tray);
 HMENU vtray_construct(const struct VTrayEntry **entries, size_t numEntries, struct VTray *parent, bool cleanup);
 LRESULT CALLBACK vtray_wndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
 void vtray_run(struct VTray *tray);
+
+#endif
