@@ -1,4 +1,4 @@
-#include "vtray.h"
+#include "tray.h"
 
 LRESULT CALLBACK vtray_wndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
@@ -42,7 +42,7 @@ LRESULT CALLBACK vtray_wndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam
     return 0;
 }
 
-struct VTray *vtray_init(const char *identifier, const char *icon, wchar_t *tooltip)
+struct VTray *vtray_init_windows(const char *identifier, const char *icon, wchar_t *tooltip)
 {
     struct VTray *tray = (struct VTray *)malloc(sizeof(struct VTray));
     if (!tray)
@@ -105,7 +105,7 @@ struct VTray *vtray_init(const char *identifier, const char *icon, wchar_t *tool
     return tray;
 }
 
-void vtray_exit(struct VTray *tray)
+void vtray_exit_windows(struct VTray *tray)
 {
     // Deallocate memory, destroy windows, etc.
 
@@ -203,7 +203,7 @@ HMENU vtray_construct(const struct VTrayEntry **entries, size_t numEntries, stru
     return menu;
 }
 
-void vtray_run(struct VTray *tray)
+void vtray_run_windows(struct VTray *tray)
 {
     // Show and run your Windows application loop here.
     ShowWindow(tray->hwnd, SW_HIDE);
