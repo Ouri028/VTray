@@ -10,10 +10,6 @@ pub fn (v &Vtray) run() {
 	C.vtray_run(v)
 }
 
-pub fn (v &Vtray) update() {
-	C.vtray_update(v)
-}
-
 pub fn (v &Vtray) destroy() {
 	C.vtray_exit(v)
 }
