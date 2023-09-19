@@ -11,6 +11,23 @@
 #define WM_TRAYICON (WM_USER + 1)
 #define ID_TRAYICON 100
 
+// FIXME: Implement opaque struct for windows implementation.
+
+// In your header file (e.g., mylib.h)
+// typedef struct MyOpaqueStruct MyOpaqueStruct;
+
+// // Function to create and initialize the opaque struct
+// MyOpaqueStruct *createMyStruct();
+
+// // Function to set a value in the opaque struct
+// void setMyStructValue(MyOpaqueStruct *obj, int value);
+
+// // Function to get a value from the opaque struct
+// int getMyStructValue(MyOpaqueStruct *obj);
+
+// // Function to destroy the opaque struct
+// void destroyMyStruct(MyOpaqueStruct *obj);
+
 struct VTray
 {
     char identifier[256];
