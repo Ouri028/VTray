@@ -3,7 +3,13 @@ module main
 import vtray
 
 fn main() {
-	v := vtray.vtray_init('Vtray!', '${@VMODROOT}/assets/icon.ico', 'Vtray Demo!')
+	mut v := vtray.VTrayApp{
+		identifier: 'VTray!'
+		tooltip: 'VTray Demo!'
+		icon: '${@VMODROOT}/assets/icon.ico'
+		items: []
+	}
+	v.vtray_init()
 	v.run()
 	v.destroy()
 }

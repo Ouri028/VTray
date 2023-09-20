@@ -22,13 +22,33 @@ $if linux {
 	#pkgconfig gtk+-3.0
 }
 
-struct C.VTray {}
+pub struct VTray {
+	// Pointer to VTray instance;
+	ptr voidptr
+}
 
-pub type Vtray = C.VTray
+// we need to use primitive types for C
+pub struct VTrayMenuItem {
+	id       int
+	text     &char
+	disabled bool
+	toggled  bool
+	image    &char
+}
 
-fn C.vtray_init_windows(identifier &char, icon &char, tooltip &wchar.Character) &Vtray
-fn C.vtray_run_windows(tray &Vtray)
-fn C.vtray_exit_windows(tray &Vtray)
-fn C.vtray_init_linux(identifier &char, icon &char, tooltip &char) &Vtray
-fn C.vtray_run_linux(tray &Vtray)
-fn C.vtray_exit_linux(tray &Vtray)
+// Parameters to configure the tray button.
+struct VTrayParams {
+	identifier &char
+	tooltip    &wchar.Character
+	icon       &char
+	items      []VTrayMenuItem
+	on_click   fn (item VTrayMenuItem) = unsafe { nil }
+}
+
+fn C.vtray_init_windows(params &VTrayParams) &VTray
+fn C.vtray_run_windows(tray &VTray)
+fn C.vtray_exit_windows(tray &VTray)
+
+// fn C.vtray_init_linux(identifier &char, icon &char, tooltip &char) &VTray
+// fn C.vtray_run_linux(tray &VTray)
+// fn C.vtray_exit_linux(tray &VTray)

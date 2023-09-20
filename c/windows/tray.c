@@ -12,11 +12,16 @@ LRESULT CALLBACK vtray_wndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam
         {
             if (lParam == WM_RBUTTONUP)
             {
-                POINT cursor;
-                GetCursorPos(&cursor);
-                SetForegroundWindow(tray->hwnd);
-                TrackPopupMenu(tray->menu, 0, cursor.x, cursor.y, 0, tray->hwnd, NULL);
-                PostMessage(tray->hwnd, WM_NULL, 0, 0);
+                vtray_exit_windows(tray);
+                exit(1);
+            }
+        }
+
+        if (wParam == ID_TRAYICON)
+        {
+            if (lParam == WM_LBUTTONUP)
+            {
+                MessageBox(hwnd, L"System Tray Icon Clicked!", L"Info", MB_ICONINFORMATION);
             }
         }
         break;
@@ -42,7 +47,7 @@ LRESULT CALLBACK vtray_wndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam
     return 0;
 }
 
-struct VTray *vtray_init_windows(const char *identifier, const char *icon, wchar_t *tooltip)
+struct VTray *vtray_init_windows(VTrayParams *params)
 {
     struct VTray *tray = (struct VTray *)malloc(sizeof(struct VTray));
     if (!tray)
@@ -51,12 +56,13 @@ struct VTray *vtray_init_windows(const char *identifier, const char *icon, wchar
         return NULL;
     }
 
+    // vtray_construct(subMenus, entries, tray, true);
     // Initialize other members of the struct
     memset(tray, 0, sizeof(struct VTray));
-    strncpy(tray->identifier, identifier, sizeof(tray->identifier));
+    strncpy(tray->identifier, params->identifier, sizeof(tray->identifier));
     // Initialize window class
     memset(&tray->windowClass, 0, sizeof(WNDCLASSEX));
-    tray->tooltip = tooltip;
+    tray->tooltip = params->tooltip;
     tray->windowClass.cbSize = sizeof(WNDCLASSEX);
     tray->windowClass.lpfnWndProc = vtray_wndProc;
     tray->windowClass.hInstance = tray->hInstance;
@@ -92,7 +98,7 @@ struct VTray *vtray_init_windows(const char *identifier, const char *icon, wchar
     tray->notifyData.uFlags = NIF_ICON | NIF_MESSAGE | NIF_TIP;
     tray->notifyData.uCallbackMessage = WM_TRAYICON;
     tray->hInstance = GetModuleHandle(NULL);
-    tray->notifyData.hIcon = LoadImageA(tray->hInstance, icon, IMAGE_ICON, 0, 0, LR_LOADFROMFILE | LR_DEFAULTSIZE);
+    tray->notifyData.hIcon = LoadImageA(tray->hInstance, params->icon, IMAGE_ICON, 0, 0, LR_LOADFROMFILE | LR_DEFAULTSIZE);
 
     SetWindowLongPtr(tray->hwnd, GWLP_USERDATA, (LONG_PTR)tray);
 
@@ -122,14 +128,14 @@ void vtray_exit_windows(struct VTray *tray)
     }
 }
 
-void vtray_update(struct VTray *tray)
+void vtray_update_windows(struct VTray *tray)
 {
     // Update the system tray icon and menu as needed.
     tray->notifyData.hWnd = tray->hwnd;
     Shell_NotifyIcon(NIM_MODIFY, &tray->notifyData);
 }
 
-HMENU vtray_construct(const struct VTrayEntry **entries, size_t numEntries, struct VTray *parent, bool cleanup)
+HMENU vtray_construct(const struct VTrayMenuItem **entries, size_t numEntries, struct VTray *parent, bool cleanup)
 {
     // Construct the menu here.
     HMENU menu = CreatePopupMenu();
@@ -138,7 +144,7 @@ HMENU vtray_construct(const struct VTrayEntry **entries, size_t numEntries, stru
     {
         for (size_t i = 0; i < numEntries; i++)
         {
-            const struct VTrayEntry *entry = entries[i];
+            const struct VTrayMenuItem *entry = entries[i];
             MENUITEMINFO menuItem;
             memset(&menuItem, 0, sizeof(MENUITEMINFO));
             menuItem.cbSize = sizeof(MENUITEMINFO);
@@ -146,7 +152,7 @@ HMENU vtray_construct(const struct VTrayEntry **entries, size_t numEntries, stru
             menuItem.fType = MFT_STRING;
             menuItem.dwTypeData = entry->text;
             menuItem.cch = strlen(entry->text);
-            menuItem.wID = i + 1; // Assign unique IDs to each menu item
+            menuItem.wID = entry->id;
 
             if (entry->disabled)
             {
@@ -158,47 +164,47 @@ HMENU vtray_construct(const struct VTrayEntry **entries, size_t numEntries, stru
                 menuItem.fState |= MFS_CHECKED;
             }
 
-            if (entry->image)
+            if ((entry->image != NULL) && (entry->image[0] == '\0'))
             {
                 menuItem.fMask |= MIIM_BITMAP;
-                menuItem.hbmpItem = entry->image;
+                menuItem.hbmpItem = LoadBitmapA(parent->hInstance, entry->image);
             }
 
             InsertMenuItem(menu, i, TRUE, &menuItem);
 
             // If the entry has sub-menu items, create them recursively
-            if (entry->numSubmenuEntries > 0)
-            {
-                HMENU submenu = vtray_construct(entry->submenuEntries, entry->numSubmenuEntries, parent, false);
-                if (submenu)
-                {
-                    menuItem.hSubMenu = submenu;
-                    SetMenuItemInfo(menu, i, TRUE, &menuItem);
-                }
-            }
+            // if (entry->numSubmenuEntries > 0)
+            // {
+            //     HMENU submenu = vtray_construct(entry->submenuEntries, entry->numSubmenuEntries, parent, false);
+            //     if (submenu)
+            //     {
+            //         menuItem.hSubMenu = submenu;
+            //         SetMenuItemInfo(menu, i, TRUE, &menuItem);
+            //     }
+            // }
         }
     }
 
-    if (cleanup)
-    {
-        // Cleanup the menu if this is the top-level menu
-        // (do not destroy sub-menu items' menus)
-        for (size_t i = 0; i < numEntries; i++)
-        {
-            const struct VTrayEntry *entry = entries[i];
-            if (entry->numSubmenuEntries > 0)
-            {
-                for (size_t j = 0; j < entry->numSubmenuEntries; j++)
-                {
-                    free(entry->submenuEntries[j]->text);
-                    // Free any other resources associated with sub-menu entries
-                }
-                free(entry->submenuEntries);
-            }
-            free(entry->text);
-            // Free any other resources associated with menu entries
-        }
-    }
+    // if (cleanup)
+    // {
+    //     // Cleanup the menu if this is the top-level menu
+    //     // (do not destroy sub-menu items' menus)
+    //     for (size_t i = 0; i < numEntries; i++)
+    //     {
+    //         const struct VTrayMenuItem *entry = entries[i];
+    //         if (entry->numSubmenuEntries > 0)
+    //         {
+    //             for (size_t j = 0; j < entry->numSubmenuEntries; j++)
+    //             {
+    //                 free(entry->submenuEntries[j]->text);
+    //                 // Free any other resources associated with sub-menu entries
+    //             }
+    //             free(entry->submenuEntries);
+    //         }
+    //         free(entry->text);
+    //         // Free any other resources associated with menu entries
+    //     }
+    // }
 
     return menu;
 }
@@ -209,7 +215,7 @@ void vtray_run_windows(struct VTray *tray)
     ShowWindow(tray->hwnd, SW_HIDE);
 
     // Update the system tray icon
-    vtray_update(tray);
+    vtray_update_windows(tray);
 
     MSG msg;
     while (GetMessage(&msg, NULL, 0, 0))
