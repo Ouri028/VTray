@@ -12,8 +12,12 @@ LRESULT CALLBACK vtray_wndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam
         {
             if (lParam == WM_RBUTTONUP)
             {
-                vtray_exit_windows(tray);
-                exit(1);
+                printf("%d", sizeof(tray->entries) / sizeof(tray->entries[0]));
+                POINT pt;
+                GetCursorPos(&pt);
+                SetForegroundWindow(hwnd);
+                TrackPopupMenu(tray->menu, TPM_RIGHTBUTTON, pt.x, pt.y, 0, hwnd, NULL);
+                PostMessage(hwnd, WM_NULL, 0, 0);
             }
         }
 
@@ -56,7 +60,6 @@ struct VTray *vtray_init_windows(VTrayParams *params)
         return NULL;
     }
 
-    // vtray_construct(subMenus, entries, tray, true);
     // Initialize other members of the struct
     memset(tray, 0, sizeof(struct VTray));
     strncpy(tray->identifier, params->identifier, sizeof(tray->identifier));
@@ -100,6 +103,12 @@ struct VTray *vtray_init_windows(VTrayParams *params)
     tray->hInstance = GetModuleHandle(NULL);
     tray->notifyData.hIcon = LoadImageA(tray->hInstance, params->icon, IMAGE_ICON, 0, 0, LR_LOADFROMFILE | LR_DEFAULTSIZE);
 
+    if ((sizeof(params->items) != NULL) || (sizeof(params->items) != 0))
+    {
+        HMENU menu = vtray_construct(params->items, tray);
+        tray->menu = menu;
+    }
+
     SetWindowLongPtr(tray->hwnd, GWLP_USERDATA, (LONG_PTR)tray);
 
     if (Shell_NotifyIcon(NIM_ADD, &tray->notifyData) == FALSE)
@@ -135,16 +144,16 @@ void vtray_update_windows(struct VTray *tray)
     Shell_NotifyIcon(NIM_MODIFY, &tray->notifyData);
 }
 
-HMENU vtray_construct(const struct VTrayMenuItem **entries, size_t numEntries, struct VTray *parent, bool cleanup)
+HMENU vtray_construct(const struct VTrayMenuItem *entries[MAX_ITEMS], struct VTray *parent)
 {
-    // Construct the menu here.
     HMENU menu = CreatePopupMenu();
+    size_t numEntries = sizeof(entries) / sizeof(entries[0]);
 
     if (menu)
     {
         for (size_t i = 0; i < numEntries; i++)
         {
-            const struct VTrayMenuItem *entry = entries[i];
+            struct VTrayMenuItem *entry = entries[i];
             MENUITEMINFO menuItem;
             memset(&menuItem, 0, sizeof(MENUITEMINFO));
             menuItem.cbSize = sizeof(MENUITEMINFO);
@@ -171,40 +180,8 @@ HMENU vtray_construct(const struct VTrayMenuItem **entries, size_t numEntries, s
             }
 
             InsertMenuItem(menu, i, TRUE, &menuItem);
-
-            // If the entry has sub-menu items, create them recursively
-            // if (entry->numSubmenuEntries > 0)
-            // {
-            //     HMENU submenu = vtray_construct(entry->submenuEntries, entry->numSubmenuEntries, parent, false);
-            //     if (submenu)
-            //     {
-            //         menuItem.hSubMenu = submenu;
-            //         SetMenuItemInfo(menu, i, TRUE, &menuItem);
-            //     }
-            // }
         }
     }
-
-    // if (cleanup)
-    // {
-    //     // Cleanup the menu if this is the top-level menu
-    //     // (do not destroy sub-menu items' menus)
-    //     for (size_t i = 0; i < numEntries; i++)
-    //     {
-    //         const struct VTrayMenuItem *entry = entries[i];
-    //         if (entry->numSubmenuEntries > 0)
-    //         {
-    //             for (size_t j = 0; j < entry->numSubmenuEntries; j++)
-    //             {
-    //                 free(entry->submenuEntries[j]->text);
-    //                 // Free any other resources associated with sub-menu entries
-    //             }
-    //             free(entry->submenuEntries);
-    //         }
-    //         free(entry->text);
-    //         // Free any other resources associated with menu entries
-    //     }
-    // }
 
     return menu;
 }

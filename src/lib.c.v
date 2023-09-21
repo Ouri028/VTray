@@ -22,13 +22,16 @@ $if linux {
 	#pkgconfig gtk+-3.0
 }
 
-pub struct VTray {
+struct VTray {
 	// Pointer to VTray instance;
 	ptr voidptr
+	// Pointer to delegate the App (only for MacOS)
+	ptr_delegate voidptr
 }
 
 // we need to use primitive types for C
 pub struct VTrayMenuItem {
+pub mut:
 	id       int
 	text     &char
 	disabled bool

@@ -17,6 +17,10 @@ pub mut:
 
 pub fn (mut v VTrayApp) vtray_init() {
 	$if windows {
+		if v.items.len > 5 {
+			panic('VTray only supports a maximum of 5 tray items.')
+		}
+
 		params := &VTrayParams{
 			identifier: &char(v.identifier.str)
 			tooltip: wchar.from_string(v.tooltip)

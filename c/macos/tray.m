@@ -15,12 +15,12 @@ static NSString *nsstring(string s) {
   NSAutoreleasePool *pool;
   NSApplication *app;
   NSStatusItem *statusItem;    // our button
-  main__TrayParams trayParams; // TrayParams is defined in tray.v
+  main__VTrayParams trayParams; // TrayParams is defined in tray.v
 }
 @end
 
 @implementation AppDelegate
-- (AppDelegate *)initWithParams:(main__TrayParams)params {
+- (AppDelegate *)initWithParams:(main__VTrayParams)params {
   if (self = [super init]) {
     trayParams = params;
   }
@@ -29,8 +29,8 @@ static NSString *nsstring(string s) {
 
 // Called when NSMenuItem is clicked.
 - (void)onAction:(id)sender {
-  struct main__TrayMenuItem *item =
-      (struct main__TrayMenuItem *)[[sender representedObject] pointerValue];
+  struct main__VTrayMenuItem *item =
+      (struct main__VTrayMenuItem *)[[sender representedObject] pointerValue];
   if (item) {
     trayParams.on_click(*item);
   }
@@ -41,7 +41,7 @@ static NSString *nsstring(string s) {
   [menu autorelease];
   [menu setAutoenablesItems:NO];
 
-  main__TrayMenuItem *params_items = trayParams.items.data;
+  main__VTrayMenuItem *params_items = trayParams.items.data;
   for (int i = 0; i < trayParams.items.len; i++) {
     NSString *title = nsstring(params_items[i].text);
     NSMenuItem *item = [menu addItemWithTitle:title
@@ -63,9 +63,13 @@ static NSString *nsstring(string s) {
   [statusItem retain];
   [statusItem setVisible:YES];
   NSStatusBarButton *statusBarButton = [statusItem button];
-
+struct main__VTrayParams *params =
+      (struct main__VTrayParams *)
   // Height must be 22px.
-  NSImage *img = [NSImage imageNamed:@"icon.png"];
+  // Need to come back to this since we probably need to construct
+  // the image first, to be honest don't know much of Objective-C XD
+  NSString* icon = [NSString stringWithFormat:@"%c" , params->icon];
+  NSImage *img = [NSImage imageNamed: icon];
   [statusBarButton setImage:img];
   NSMenu *menu = [self buildMenu];
   [statusItem setMenu:menu];
@@ -86,7 +90,7 @@ static NSString *nsstring(string s) {
 @end
 
 // Initializes NSApplication and NSStatusItem, aka system tray menu item.
-main__TrayInfo *vtray_init_macos(main__TrayParams params) {
+main__VTray *vtray_init_macos(main__VTrayParams params) {
   NSApplication *app = [NSApplication sharedApplication];
   AppDelegate *appDelegate = [[AppDelegate alloc] initWithParams:params];
 
@@ -96,24 +100,24 @@ main__TrayInfo *vtray_init_macos(main__TrayParams params) {
 
   [appDelegate initTrayMenuItem];
 
-  main__TrayInfo *tray_info = malloc(sizeof(main__TrayInfo));
-  tray_info->app = app;
-  tray_info->app_delegate = appDelegate;
-  return tray_info;
+  main__VTray *vtray = malloc(sizeof(main__VTray));
+  vtray->ptr = app;
+  vtray->ptr_delegate = appDelegate;
+  return vtray;
 }
 
 // Blocks and runs the application.
-void vtray_run_macos(main__TrayInfo *tray_info) {
-  NSApplication *app = (NSApplication *)(tray_info->app);
+void vtray_run_macos(main__VTray *vtray) {
+  NSApplication *app = (NSApplication *)(vtray->ptr);
   [app run];
 }
 
 // Processes a single NSEvent while blocking the thread
 // until there is an event.
-void vtray_update_macos(main__TrayInfo *tray_info) {
+void vtray_update_macos(main__VTray *vtray) {
   NSDate *until = [NSDate distantFuture];
 
-  NSApplication *app = (NSApplication *)(tray_info->app);
+  NSApplication *app = (NSApplication *)(vtray->app);
   NSEvent *event = [app nextEventMatchingMask:ULONG_MAX
                                     untilDate:until
                                        inMode:@"kCFRunLoopDefaultMode"
@@ -125,7 +129,7 @@ void vtray_update_macos(main__TrayInfo *tray_info) {
 }
 
 // Terminates the app.
-void vtray_tray_exit_macos(main__TrayInfo *tray_info) {
-  NSApplication *app = (NSApplication *)(tray_info->app);
+void vtray_tray_exit_macos(main__VTray *vtray) {
+  NSApplication *app = (NSApplication *)(vtray->app);
   [app terminate:app];
 }

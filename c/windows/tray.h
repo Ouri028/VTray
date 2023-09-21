@@ -10,6 +10,7 @@
 
 #define WM_TRAYICON (WM_USER + 1)
 #define ID_TRAYICON 100
+#define MAX_ITEMS 5
 
 typedef struct VTrayParams VTrayParams;
 typedef struct VTrayMenuItem VTrayMenuItem;
@@ -20,7 +21,7 @@ struct VTrayParams
     char *identifier;
     wchar_t *tooltip;
     char *icon;
-    VTrayMenuItem **items;
+    struct VTrayMenuItem *items[MAX_ITEMS];
     CallbackFunction on_click;
 };
 
@@ -38,7 +39,7 @@ struct VTray
     char identifier[256];
     NOTIFYICONDATA notifyData;
     HMENU menu;
-    const struct VTrayMenuItem **entries;
+    const struct VTrayMenuItem *entries[MAX_ITEMS];
     size_t numEntries;
     struct Allocation *allocations;
     WNDCLASSEX windowClass;
@@ -55,7 +56,7 @@ struct Allocation
 struct VTray *vtray_init_windows(VTrayParams *params);
 void vtray_exit_windows(struct VTray *tray);
 void vtray_update_windows(struct VTray *tray);
-HMENU vtray_construct(const struct VTrayMenuItem **entries, size_t numEntries, struct VTray *parent, bool cleanup);
+HMENU vtray_construct(const struct VTrayMenuItem *entries[MAX_ITEMS], struct VTray *parent);
 void vtray_run_windows(struct VTray *tray);
 
 #endif
