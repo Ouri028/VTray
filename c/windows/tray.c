@@ -31,6 +31,7 @@ LRESULT CALLBACK vtray_wndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam
             if (HIWORD(wParam) == 0) // Menu item clicked
             {
                 int menuId = LOWORD(wParam);
+                tray->on_click(menuId);
                 // Handle menu item action based on menuId
                 // You can identify menu items using their IDs.
             }
@@ -98,6 +99,7 @@ struct VTray *vtray_init_windows(VTrayParams *params, size_t num_items, struct V
     tray->notifyData.hIcon = LoadImageA(tray->hInstance, params->icon, IMAGE_ICON, 0, 0,
                                         LR_LOADFROMFILE | LR_DEFAULTSIZE);
     vtray_construct(items, num_items, tray);
+    tray->on_click = params->on_click;
     SetWindowLongPtr(tray->notifyData.hWnd, GWLP_USERDATA, (LONG_PTR) tray);
     if (Shell_NotifyIcon(NIM_ADD, &tray->notifyData) == FALSE) {
         fprintf(stderr, "Failed to register tray icon\n");
@@ -129,7 +131,6 @@ void vtray_update_windows(struct VTray *tray) {
 
 void vtray_construct(struct VTrayMenuItem *items[], size_t num_items, struct VTray *parent) {
     parent->menu = CreatePopupMenu();
-    printf("%zu\n", num_items);
     if (parent->menu) {
         for (size_t i = 0; i < num_items; i++) {
             struct VTrayMenuItem *item = items[i];
@@ -151,7 +152,7 @@ void vtray_construct(struct VTrayMenuItem *items[], size_t num_items, struct VTr
                 menuItem.hbmpItem = LoadBitmapA(parent->hInstance, item->image);
             }
 
-            if (!AppendMenu(parent->menu, MF_STRING, i, (LPCSTR) item->text)) {
+            if (!AppendMenu(parent->menu, MF_STRING, item->id, (LPCSTR) item->text)) {
                 fprintf(stderr, "Failed to add menu item\n");
                 exit(1);
             }

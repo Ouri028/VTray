@@ -6,13 +6,13 @@ import builtin.wchar
 [heap]
 pub struct VTrayApp {
 mut:
-	tray     &VTray = unsafe { nil }
-	on_click fn (item &VTrayMenuItem) = unsafe { nil }
+	tray &VTray = unsafe { nil }
 pub mut:
 	identifier string
 	tooltip    string
 	icon       string
 	items      []&VTrayMenuItem
+	on_click   fn (menu_id int) = unsafe { nil }
 }
 
 pub fn (mut v VTrayApp) vtray_init() {
@@ -21,7 +21,7 @@ pub fn (mut v VTrayApp) vtray_init() {
 			identifier: &char(v.identifier.str)
 			tooltip: wchar.from_string(v.tooltip)
 			icon: &char(v.icon.str)
-			on_click: v.on_menu_item_click
+			on_click: v.on_click
 		}, usize(v.items.len), v.items.data)
 		v.tray = tray
 	}
@@ -39,11 +39,6 @@ pub fn (v &VTrayApp) run() {
 	// 	C.vtray_run_linux(v)
 	// }
 	panic('Unsupported platform')
-}
-
-// Override function
-pub fn (v &VTrayApp) on_menu_item_click(item &VTrayMenuItem) {
-	println(item.text)
 }
 
 pub fn (v &VTrayApp) destroy() {

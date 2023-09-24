@@ -44,7 +44,7 @@ struct VTrayParams {
 	identifier &char
 	tooltip    &wchar.Character
 	icon       &char
-	on_click   fn (item VTrayMenuItem) = unsafe { nil }
+	on_click   fn (menu_id int) = unsafe { nil }
 }
 
 fn C.vtray_init_windows(params &VTrayParams, num_items usize, items []&VTrayMenuItem) &VTray

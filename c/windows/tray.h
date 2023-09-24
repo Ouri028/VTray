@@ -15,7 +15,7 @@
 typedef struct VTrayParams VTrayParams;
 typedef struct VTrayMenuItem VTrayMenuItem;
 
-typedef void (*CallbackFunction)(VTrayMenuItem *item);
+typedef void (*CallbackFunction)(int id);
 
 struct VTrayParams {
     char *identifier;
@@ -36,16 +36,13 @@ struct VTray {
     char identifier[256];
     NOTIFYICONDATA notifyData;
     HMENU menu;
-    struct Allocation *allocations;
     WNDCLASSEX windowClass;
     HINSTANCE hInstance;
     HWND hwnd;
     wchar_t *tooltip;
+    CallbackFunction on_click;
 };
 
-struct Allocation {
-    char *name;
-};
 
 struct VTray *vtray_init_windows(VTrayParams *params, size_t num_items, struct VTrayMenuItem *items[]);
 

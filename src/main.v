@@ -8,6 +8,7 @@ fn main() {
 		identifier: 'VTray!'
 		tooltip: 'VTray Demo!'
 		icon: '${@VMODROOT}/assets/icon.ico'
+		on_click: on_click
 		items: [
 			&vtray.VTrayMenuItem{
 				id: 1
@@ -35,4 +36,8 @@ fn main() {
 	v.vtray_init()
 	v.run()
 	v.destroy()
+}
+
+fn on_click(menu_id int) {
+	println('ITEM: ${item}')
 }
