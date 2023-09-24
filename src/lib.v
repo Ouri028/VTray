@@ -7,28 +7,22 @@ import builtin.wchar
 pub struct VTrayApp {
 mut:
 	tray     &VTray = unsafe { nil }
-	on_click fn (item VTrayMenuItem) = unsafe { nil }
+	on_click fn (item &VTrayMenuItem) = unsafe { nil }
 pub mut:
 	identifier string
 	tooltip    string
 	icon       string
-	items      []VTrayMenuItem
+	items      []&VTrayMenuItem
 }
 
 pub fn (mut v VTrayApp) vtray_init() {
 	$if windows {
-		if v.items.len > 5 {
-			panic('VTray only supports a maximum of 5 tray items.')
-		}
-
-		params := &VTrayParams{
+		tray := C.vtray_init_windows(&VTrayParams{
 			identifier: &char(v.identifier.str)
 			tooltip: wchar.from_string(v.tooltip)
 			icon: &char(v.icon.str)
-			items: v.items
 			on_click: v.on_menu_item_click
-		}
-		tray := C.vtray_init_windows(params)
+		}, usize(v.items.len), v.items.data)
 		v.tray = tray
 	}
 	// } $else $if linux {
@@ -48,7 +42,7 @@ pub fn (v &VTrayApp) run() {
 }
 
 // Override function
-pub fn (v &VTrayApp) on_menu_item_click(item VTrayMenuItem) {
+pub fn (v &VTrayApp) on_menu_item_click(item &VTrayMenuItem) {
 	println(item.text)
 }
 

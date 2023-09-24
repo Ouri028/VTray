@@ -33,7 +33,7 @@ struct VTray {
 pub struct VTrayMenuItem {
 pub mut:
 	id       int
-	text     &char
+	text     &wchar.Character
 	disabled bool
 	toggled  bool
 	image    &char
@@ -44,11 +44,10 @@ struct VTrayParams {
 	identifier &char
 	tooltip    &wchar.Character
 	icon       &char
-	items      []VTrayMenuItem
 	on_click   fn (item VTrayMenuItem) = unsafe { nil }
 }
 
-fn C.vtray_init_windows(params &VTrayParams) &VTray
+fn C.vtray_init_windows(params &VTrayParams, num_items usize, items []&VTrayMenuItem) &VTray
 fn C.vtray_run_windows(tray &VTray)
 fn C.vtray_exit_windows(tray &VTray)
 

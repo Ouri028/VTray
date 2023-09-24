@@ -1,5 +1,5 @@
 CC = v
-ARGS = -cc gcc
+ARGS = -cg -cc gcc
 
 all:
 	$(CC) $(ARGS) run .

@@ -1,5 +1,5 @@
+#ifdef __linux__
 #include "tray.h"
-
 void tray_icon_activate(GtkMenuItem *item, gpointer user_data)
 {
     // Handle tray icon click event here
@@ -72,3 +72,5 @@ void vtray_run_linux(struct VTray *tray)
     // Show and run your Linux application loop here.
     gtk_main();
 }
+
+#endif

@@ -1,67 +1,62 @@
+#ifdef _WIN32
+
 #include "tray.h"
 
-LRESULT CALLBACK vtray_wndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
-{
-    struct VTray *tray = (struct VTray *)GetWindowLongPtr(hwnd, GWLP_USERDATA);
+LRESULT CALLBACK vtray_wndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
+    struct VTray *tray = (struct VTray *) GetWindowLongPtr(hwnd, GWLP_USERDATA);
 
-    switch (msg)
-    {
-    case WM_TRAYICON:
-        // Handle tray icon messages here
-        if (wParam == ID_TRAYICON)
-        {
-            if (lParam == WM_RBUTTONUP)
-            {
-                printf("%d", sizeof(tray->entries) / sizeof(tray->entries[0]));
-                POINT pt;
-                GetCursorPos(&pt);
-                SetForegroundWindow(hwnd);
-                TrackPopupMenu(tray->menu, TPM_RIGHTBUTTON, pt.x, pt.y, 0, hwnd, NULL);
-                PostMessage(hwnd, WM_NULL, 0, 0);
+    switch (msg) {
+        case WM_TRAYICON:
+            // Handle tray icon messages here
+            if (wParam == ID_TRAYICON) {
+                if (lParam == WM_RBUTTONUP) {
+                    POINT cursor;
+                    GetCursorPos(&cursor);
+                    SetForegroundWindow(hwnd);
+                    TrackPopupMenu(tray->menu, 0, cursor.x, cursor.y, 0, tray->hwnd, NULL);
+                    PostMessage(hwnd, WM_NULL, 0, 0);
+                }
             }
-        }
 
-        if (wParam == ID_TRAYICON)
-        {
-            if (lParam == WM_LBUTTONUP)
-            {
-                MessageBox(hwnd, L"System Tray Icon Clicked!", L"Info", MB_ICONINFORMATION);
+            if (wParam == ID_TRAYICON) {
+                if (lParam == WM_LBUTTONUP) {
+                    exit(1);
+                    // MessageBox(hwnd, L"System Tray Icon Clicked!", L"Info", MB_ICONINFORMATION);
+                }
             }
-        }
-        break;
+            break;
 
-    case WM_COMMAND:
-        // Handle menu item selection
-        if (HIWORD(wParam) == 0) // Menu item clicked
-        {
-            int menuId = LOWORD(wParam);
-            // Handle menu item action based on menuId
-            // You can identify menu items using their IDs.
-        }
-        break;
+        case WM_COMMAND:
+            // Handle menu item selection
+            if (HIWORD(wParam) == 0) // Menu item clicked
+            {
+                int menuId = LOWORD(wParam);
+                // Handle menu item action based on menuId
+                // You can identify menu items using their IDs.
+            }
+            break;
 
-    case WM_CLOSE:
-        // Handle window close event
-        ShowWindow(tray->hwnd, SW_HIDE);
-        break;
+        case WM_CLOSE:
+            // Handle window close event
+            ShowWindow(hwnd, SW_HIDE);
+            break;
 
-    default:
-        return DefWindowProc(hwnd, msg, wParam, lParam);
+        default:
+            return DefWindowProc(hwnd, msg, wParam, lParam);
     }
     return 0;
 }
 
-struct VTray *vtray_init_windows(VTrayParams *params)
-{
-    struct VTray *tray = (struct VTray *)malloc(sizeof(struct VTray));
-    if (!tray)
-    {
+struct VTray *vtray_init_windows(VTrayParams *params, size_t num_items, struct VTrayMenuItem *items[]) {
+    struct VTray *tray = (struct VTray *) malloc(sizeof(struct VTray));
+    if (!tray) {
         // Handle allocation failure
         return NULL;
     }
 
     // Initialize other members of the struct
     memset(tray, 0, sizeof(struct VTray));
+
     strncpy(tray->identifier, params->identifier, sizeof(tray->identifier));
     // Initialize window class
     memset(&tray->windowClass, 0, sizeof(WNDCLASSEX));
@@ -71,8 +66,7 @@ struct VTray *vtray_init_windows(VTrayParams *params)
     tray->windowClass.hInstance = tray->hInstance;
     tray->windowClass.lpszClassName = tray->identifier;
 
-    if (!RegisterClassEx(&tray->windowClass))
-    {
+    if (!RegisterClassEx(&tray->windowClass)) {
         // Handle class registration failure
 
         free(tray);
@@ -82,10 +76,10 @@ struct VTray *vtray_init_windows(VTrayParams *params)
     }
 
     // Create a hidden window
-    tray->hwnd = CreateWindow(tray->identifier, NULL, 0, 0, 0, 0, 0, NULL, NULL, tray->windowClass.hInstance, NULL);
+    tray->hwnd = CreateWindow(tray->identifier, NULL, 0, 0, 0, 0, 0, NULL, NULL, tray->windowClass.hInstance,
+                              NULL);
 
-    if (!tray->hwnd)
-    {
+    if (!tray->hwnd) {
         // Handle window creation failure
         UnregisterClass(tray->identifier, tray->hInstance);
         free(tray);
@@ -95,37 +89,27 @@ struct VTray *vtray_init_windows(VTrayParams *params)
 
     // Initialize the NOTIFYICONDATA structure
     tray->notifyData.cbSize = sizeof(NOTIFYICONDATA);
-    wcscpy(tray->notifyData.szTip, tray->tooltip);
+    wcscpy((wchar_t *) tray->notifyData.szTip, tray->tooltip);
     tray->notifyData.hWnd = tray->hwnd;
     tray->notifyData.uID = ID_TRAYICON;
     tray->notifyData.uFlags = NIF_ICON | NIF_MESSAGE | NIF_TIP;
     tray->notifyData.uCallbackMessage = WM_TRAYICON;
     tray->hInstance = GetModuleHandle(NULL);
-    tray->notifyData.hIcon = LoadImageA(tray->hInstance, params->icon, IMAGE_ICON, 0, 0, LR_LOADFROMFILE | LR_DEFAULTSIZE);
-
-    if ((sizeof(params->items) != NULL) || (sizeof(params->items) != 0))
-    {
-        HMENU menu = vtray_construct(params->items, tray);
-        tray->menu = menu;
-    }
-
-    SetWindowLongPtr(tray->hwnd, GWLP_USERDATA, (LONG_PTR)tray);
-
-    if (Shell_NotifyIcon(NIM_ADD, &tray->notifyData) == FALSE)
-    {
+    tray->notifyData.hIcon = LoadImageA(tray->hInstance, params->icon, IMAGE_ICON, 0, 0,
+                                        LR_LOADFROMFILE | LR_DEFAULTSIZE);
+    vtray_construct(items, num_items, tray);
+    SetWindowLongPtr(tray->notifyData.hWnd, GWLP_USERDATA, (LONG_PTR) tray);
+    if (Shell_NotifyIcon(NIM_ADD, &tray->notifyData) == FALSE) {
         fprintf(stderr, "Failed to register tray icon\n");
         return NULL;
     }
-
     return tray;
 }
 
-void vtray_exit_windows(struct VTray *tray)
-{
+void vtray_exit_windows(struct VTray *tray) {
     // Deallocate memory, destroy windows, etc.
 
-    if (tray)
-    {
+    if (tray) {
         if (tray->hwnd)
             DestroyWindow(tray->hwnd);
         if (tray->menu)
@@ -137,57 +121,45 @@ void vtray_exit_windows(struct VTray *tray)
     }
 }
 
-void vtray_update_windows(struct VTray *tray)
-{
+void vtray_update_windows(struct VTray *tray) {
     // Update the system tray icon and menu as needed.
     tray->notifyData.hWnd = tray->hwnd;
     Shell_NotifyIcon(NIM_MODIFY, &tray->notifyData);
 }
 
-HMENU vtray_construct(const struct VTrayMenuItem *entries[MAX_ITEMS], struct VTray *parent)
-{
-    HMENU menu = CreatePopupMenu();
-    size_t numEntries = sizeof(entries) / sizeof(entries[0]);
-
-    if (menu)
-    {
-        for (size_t i = 0; i < numEntries; i++)
-        {
-            struct VTrayMenuItem *entry = entries[i];
+void vtray_construct(struct VTrayMenuItem *items[], size_t num_items, struct VTray *parent) {
+    parent->menu = CreatePopupMenu();
+    printf("%zu\n", num_items);
+    if (parent->menu) {
+        for (size_t i = 0; i < num_items; i++) {
+            struct VTrayMenuItem *item = items[i];
             MENUITEMINFO menuItem;
             memset(&menuItem, 0, sizeof(MENUITEMINFO));
             menuItem.cbSize = sizeof(MENUITEMINFO);
-            menuItem.fMask = MIIM_FTYPE | MIIM_STRING | MIIM_STATE | MIIM_ID;
-            menuItem.fType = MFT_STRING;
-            menuItem.dwTypeData = entry->text;
-            menuItem.cch = strlen(entry->text);
-            menuItem.wID = entry->id;
-
-            if (entry->disabled)
-            {
+            menuItem.fMask = MIIM_ID | MIIM_TYPE | MIIM_STATE;
+            menuItem.wID = item->id;
+            if (item->disabled) {
                 menuItem.fState = MFS_DISABLED;
             }
 
-            if (entry->toggled)
-            {
+            if (item->toggled) {
                 menuItem.fState |= MFS_CHECKED;
             }
 
-            if ((entry->image != NULL) && (entry->image[0] == '\0'))
-            {
+            if ((item->image != NULL) && (item->image[0] == '\0')) {
                 menuItem.fMask |= MIIM_BITMAP;
-                menuItem.hbmpItem = LoadBitmapA(parent->hInstance, entry->image);
+                menuItem.hbmpItem = LoadBitmapA(parent->hInstance, item->image);
             }
 
-            InsertMenuItem(menu, i, TRUE, &menuItem);
+            if (!AppendMenu(parent->menu, MF_STRING, i, (LPCSTR) item->text)) {
+                fprintf(stderr, "Failed to add menu item\n");
+                exit(1);
+            }
         }
     }
-
-    return menu;
 }
 
-void vtray_run_windows(struct VTray *tray)
-{
+void vtray_run_windows(struct VTray *tray) {
     // Show and run your Windows application loop here.
     ShowWindow(tray->hwnd, SW_HIDE);
 
@@ -195,9 +167,10 @@ void vtray_run_windows(struct VTray *tray)
     vtray_update_windows(tray);
 
     MSG msg;
-    while (GetMessage(&msg, NULL, 0, 0))
-    {
+    while (GetMessage(&msg, NULL, 0, 0)) {
         TranslateMessage(&msg);
         DispatchMessage(&msg);
     }
 }
+
+#endif

@@ -1,5 +1,6 @@
 #pragma once
 #ifdef _WIN32
+
 #include <windows.h>
 #include <tchar.h>
 #include <stdio.h>
@@ -10,23 +11,20 @@
 
 #define WM_TRAYICON (WM_USER + 1)
 #define ID_TRAYICON 100
-#define MAX_ITEMS 5
 
 typedef struct VTrayParams VTrayParams;
 typedef struct VTrayMenuItem VTrayMenuItem;
+
 typedef void (*CallbackFunction)(VTrayMenuItem *item);
 
-struct VTrayParams
-{
+struct VTrayParams {
     char *identifier;
     wchar_t *tooltip;
     char *icon;
-    struct VTrayMenuItem *items[MAX_ITEMS];
     CallbackFunction on_click;
 };
 
-struct VTrayMenuItem
-{
+struct VTrayMenuItem {
     int id;
     char *text;
     bool disabled;
@@ -34,13 +32,10 @@ struct VTrayMenuItem
     char *image;
 };
 
-struct VTray
-{
+struct VTray {
     char identifier[256];
     NOTIFYICONDATA notifyData;
     HMENU menu;
-    const struct VTrayMenuItem *entries[MAX_ITEMS];
-    size_t numEntries;
     struct Allocation *allocations;
     WNDCLASSEX windowClass;
     HINSTANCE hInstance;
@@ -48,15 +43,18 @@ struct VTray
     wchar_t *tooltip;
 };
 
-struct Allocation
-{
+struct Allocation {
     char *name;
 };
 
-struct VTray *vtray_init_windows(VTrayParams *params);
+struct VTray *vtray_init_windows(VTrayParams *params, size_t num_items, struct VTrayMenuItem *items[]);
+
 void vtray_exit_windows(struct VTray *tray);
+
 void vtray_update_windows(struct VTray *tray);
-HMENU vtray_construct(const struct VTrayMenuItem *entries[MAX_ITEMS], struct VTray *parent);
+
+void vtray_construct(struct VTrayMenuItem *items[], size_t num_items, struct VTray *parent);
+
 void vtray_run_windows(struct VTray *tray);
 
 #endif
