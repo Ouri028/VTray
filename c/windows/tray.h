@@ -26,7 +26,7 @@ struct VTrayParams {
 
 struct VTrayMenuItem {
     int id;
-    char *text;
+    wchar_t *text;
     bool disabled;
     bool toggled;
     char *image;

@@ -13,7 +13,8 @@ LRESULT CALLBACK vtray_wndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam
                     POINT cursor;
                     GetCursorPos(&cursor);
                     SetForegroundWindow(hwnd);
-                    TrackPopupMenu(tray->menu, 0, cursor.x, cursor.y, 0, tray->hwnd, NULL);
+                    TrackPopupMenu(tray->menu, TPM_TOPALIGN | TPM_LEFTALIGN | TPM_HORPOSANIMATION, cursor.x, cursor.y,
+                                   0, tray->hwnd, NULL);
                     PostMessage(hwnd, WM_NULL, 0, 0);
                 }
             }
@@ -147,7 +148,7 @@ void vtray_construct(struct VTrayMenuItem *items[], size_t num_items, struct VTr
                 menuItem.fState |= MFS_CHECKED;
             }
 
-            if ((item->image != NULL) && (item->image[0] == '\0')) {
+            if (item->image != NULL) {
                 menuItem.fMask |= MIIM_BITMAP;
                 menuItem.hbmpItem = LoadBitmapA(parent->hInstance, item->image);
             }

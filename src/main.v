@@ -15,21 +15,21 @@ fn main() {
 				text: wchar.from_string('item 1')
 				disabled: false
 				toggled: false
-				image: '${@VMODROOT}/assets/icon.ico'.str
+				image: '${@VMODROOT}/assets/1.bmp'.str
 			},
 			&vtray.VTrayMenuItem{
 				id: 2
 				text: wchar.from_string('item 2')
 				disabled: false
 				toggled: false
-				image: '${@VMODROOT}/assets/icon.ico'.str
+				image: '${@VMODROOT}/assets/1.bmp'.str
 			},
 			&vtray.VTrayMenuItem{
 				id: 3
 				text: wchar.from_string('item 3')
 				disabled: false
 				toggled: false
-				image: '${@VMODROOT}/assets/icon.ico'.str
+				image: '${@VMODROOT}/assets/1.bmp'.str
 			},
 		]
 	}
@@ -39,5 +39,5 @@ fn main() {
 }
 
 fn on_click(menu_id int) {
-	println('ITEM: ${item}')
+	println('ITEM: ${menu_id}')
 }
