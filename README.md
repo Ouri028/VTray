@@ -1,4 +1,21 @@
-module example
+# VTray
+
+VTray is a cross-platform V library to place an icon and menu in the notification area.
+
+## Features
+
+- [x] Create a tray
+- [x] Add an on click event listener
+- [x] Supported on Windows
+- [ ] Supported on Linux
+- [ ] Supported on MacOS
+- [ ] Menu items can be checked and/or disabled
+- [ ] Allow menus to have their own icons
+
+## Example
+
+```v
+module main
 
 import vtray
 
@@ -8,7 +25,7 @@ enum MenuItems {
 }
 
 struct App {
-pub mut:
+	pub mut:
 	tray vtray.VTrayApp
 }
 
@@ -47,3 +64,10 @@ fn (app &App) on_click(menu_id int) {
 		else {}
 	}
 }
+```
+
+![image1.png](assets%2Fimage1.png)
+
+![image2.png](assets%2Fimage2.png)
+
+![image3.png](assets%2Fimage3.png)
