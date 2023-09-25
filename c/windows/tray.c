@@ -18,13 +18,6 @@ LRESULT CALLBACK vtray_wndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam
                     PostMessage(hwnd, WM_NULL, 0, 0);
                 }
             }
-
-            if (wParam == ID_TRAYICON) {
-                if (lParam == WM_LBUTTONUP) {
-                    exit(1);
-                    // MessageBox(hwnd, L"System Tray Icon Clicked!", L"Info", MB_ICONINFORMATION);
-                }
-            }
             break;
 
         case WM_COMMAND:
@@ -121,6 +114,7 @@ void vtray_exit_windows(struct VTray *tray) {
             DestroyIcon(tray->notifyData.hIcon);
         UnregisterClass(tray->identifier, tray->hInstance);
         free(tray);
+        exit(1);
     }
 }
 

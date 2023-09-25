@@ -3,41 +3,54 @@ module main
 import vtray
 import builtin.wchar
 
-fn main() {
-	mut v := vtray.VTrayApp{
-		identifier: 'VTray!'
-		tooltip: 'VTray Demo!'
-		icon: '${@VMODROOT}/assets/icon.ico'
-		on_click: on_click
-		items: [
-			&vtray.VTrayMenuItem{
-				id: 1
-				text: wchar.from_string('item 1')
-				disabled: false
-				toggled: false
-				image: '${@VMODROOT}/assets/1.bmp'.str
-			},
-			&vtray.VTrayMenuItem{
-				id: 2
-				text: wchar.from_string('item 2')
-				disabled: false
-				toggled: false
-				image: '${@VMODROOT}/assets/1.bmp'.str
-			},
-			&vtray.VTrayMenuItem{
-				id: 3
-				text: wchar.from_string('item 3')
-				disabled: false
-				toggled: false
-				image: '${@VMODROOT}/assets/1.bmp'.str
-			},
-		]
-	}
-	v.vtray_init()
-	v.run()
-	v.destroy()
+enum MenuItems {
+	edit = 1
+	quit = 2
 }
 
-fn on_click(menu_id int) {
-	println('ITEM: ${menu_id}')
+struct App {
+pub mut:
+	tray vtray.VTrayApp
+}
+
+fn main() {
+	mut app := App{
+		tray: vtray.VTrayApp{
+			identifier: 'VTray!'
+			tooltip: 'VTray Demo!'
+			icon: '${@VMODROOT}/assets/icon.ico'
+			items: [
+				&vtray.VTrayMenuItem{
+					id: int(MenuItems.edit)
+					text: wchar.from_string('Edit')
+					disabled: false
+					toggled: false
+					image: '${@VMODROOT}/assets/1.bmp'.str
+				},
+				&vtray.VTrayMenuItem{
+					id: int(MenuItems.quit)
+					text: wchar.from_string('Quit')
+					disabled: false
+					toggled: false
+					image: '${@VMODROOT}/assets/1.bmp'.str
+				},
+			]
+		}
+	}
+	app.tray.on_click = app.on_click
+	app.tray.vtray_init()
+	app.tray.run()
+	app.tray.destroy()
+}
+
+fn (app &App) on_click(menu_id int) {
+	match menu_id {
+		int(MenuItems.edit) {
+			println('EDIT!')
+		}
+		int(MenuItems.quit) {
+			app.tray.destroy()
+		}
+		else {}
+	}
 }
