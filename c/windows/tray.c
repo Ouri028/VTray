@@ -42,7 +42,7 @@ LRESULT CALLBACK vtray_wndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam
     return 0;
 }
 
-struct VTray *vtray_init_windows(VTrayParams *params, size_t num_items, struct VTrayMenuItem *items[]) {
+struct VTray *vtray_init_windows(VTrayParams *params, size_t num_items, struct MenuItem *items[]) {
     struct VTray *tray = (struct VTray *) malloc(sizeof(struct VTray));
     if (!tray) {
         // Handle allocation failure
@@ -124,28 +124,22 @@ void vtray_update_windows(struct VTray *tray) {
     Shell_NotifyIcon(NIM_MODIFY, &tray->notifyData);
 }
 
-void vtray_construct(struct VTrayMenuItem *items[], size_t num_items, struct VTray *parent) {
+void vtray_construct(struct MenuItem *items[], size_t num_items, struct VTray *parent) {
     parent->menu = CreatePopupMenu();
     if (parent->menu) {
         for (size_t i = 0; i < num_items; i++) {
-            struct VTrayMenuItem *item = items[i];
+            struct MenuItem *item = items[i];
             MENUITEMINFO menuItem;
             memset(&menuItem, 0, sizeof(MENUITEMINFO));
             menuItem.cbSize = sizeof(MENUITEMINFO);
             menuItem.fMask = MIIM_ID | MIIM_TYPE | MIIM_STATE;
             menuItem.wID = item->id;
-            if (item->disabled) {
-                menuItem.fState = MFS_DISABLED;
-            }
-
-            if (item->toggled) {
-                menuItem.fState |= MFS_CHECKED;
-            }
-
-            if (item->image != NULL) {
-                menuItem.fMask |= MIIM_BITMAP;
-                menuItem.hbmpItem = LoadBitmapA(parent->hInstance, item->image);
-            }
+            menuItem.fMask |= MIIM_BITMAP;
+            // TODO: Add menu icon support.
+//            if (item->image != NULL) {
+//
+//                menuItem.hbmpItem = LoadBitmapA(parent->hInstance, item->image);
+//            }
 
             if (!AppendMenu(parent->menu, MF_STRING, item->id, (LPCSTR) item->text)) {
                 fprintf(stderr, "Failed to add menu item\n");

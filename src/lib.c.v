@@ -30,13 +30,12 @@ struct VTray {
 }
 
 // we need to use primitive types for C
-pub struct VTrayMenuItem {
+pub struct MenuItem {
 pub mut:
-	id       int
-	text     &wchar.Character
-	disabled bool
-	toggled  bool
-	image    &char
+	id   int
+	text &wchar.Character
+	// TODO: Add menu item icons.
+	// image    &char
 }
 
 // Parameters to configure the tray button.
@@ -47,7 +46,7 @@ struct VTrayParams {
 	on_click   fn (menu_id int) = unsafe { nil }
 }
 
-fn C.vtray_init_windows(params &VTrayParams, num_items usize, items []&VTrayMenuItem) &VTray
+fn C.vtray_init_windows(params &VTrayParams, num_items usize, items []&MenuItem) &VTray
 fn C.vtray_run_windows(tray &VTray)
 fn C.vtray_exit_windows(tray &VTray)
 

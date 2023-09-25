@@ -1,6 +1,7 @@
-module main
+module example
 
 import vtray
+import builtin.wchar
 
 enum MenuItems {
 	edit = 1
@@ -21,11 +22,11 @@ fn main() {
 			items: [
 				&vtray.VTrayMenuItem{
 					id: int(MenuItems.edit)
-					text: 'Edit'
+					text: wchar.from_string('Edit')
 				},
 				&vtray.VTrayMenuItem{
 					id: int(MenuItems.quit)
-					text: 'Quit'
+					text: wchar.from_string('Quit')
 				},
 			]
 		}

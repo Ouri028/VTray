@@ -13,7 +13,7 @@
 #define ID_TRAYICON 100
 
 typedef struct VTrayParams VTrayParams;
-typedef struct VTrayMenuItem VTrayMenuItem;
+typedef struct MenuItem MenuItem;
 
 typedef void (*CallbackFunction)(int id);
 
@@ -24,12 +24,10 @@ struct VTrayParams {
     CallbackFunction on_click;
 };
 
-struct VTrayMenuItem {
+struct MenuItem {
     int id;
     wchar_t *text;
-    bool disabled;
-    bool toggled;
-    char *image;
+//    char *image;
 };
 
 struct VTray {
@@ -44,13 +42,13 @@ struct VTray {
 };
 
 
-struct VTray *vtray_init_windows(VTrayParams *params, size_t num_items, struct VTrayMenuItem *items[]);
+struct VTray *vtray_init_windows(VTrayParams *params, size_t num_items, struct MenuItem *items[]);
 
 void vtray_exit_windows(struct VTray *tray);
 
 void vtray_update_windows(struct VTray *tray);
 
-void vtray_construct(struct VTrayMenuItem *items[], size_t num_items, struct VTray *parent);
+void vtray_construct(struct MenuItem *items[], size_t num_items, struct VTray *parent);
 
 void vtray_run_windows(struct VTray *tray);
 

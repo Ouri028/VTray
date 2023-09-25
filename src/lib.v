@@ -15,14 +15,30 @@ pub mut:
 	on_click   fn (menu_id int) = unsafe { nil }
 }
 
+pub struct VTrayMenuItem {
+pub mut:
+	id   int
+	text string
+	// TODO: Add menu item icons.
+	// image    &char
+}
+
 pub fn (mut v VTrayApp) vtray_init() {
 	$if windows {
+		mut items := []&MenuItem{}
+		for item in v.items {
+			convert := &MenuItem{
+				id: item.id
+				text: wchar.from_string(item.text)
+			}
+			items << convert
+		}
 		tray := C.vtray_init_windows(&VTrayParams{
 			identifier: &char(v.identifier.str)
 			tooltip: wchar.from_string(v.tooltip)
 			icon: &char(v.icon.str)
 			on_click: v.on_click
-		}, usize(v.items.len), v.items.data)
+		}, usize(items.len), items.data)
 		v.tray = tray
 	}
 	// } $else $if linux {
