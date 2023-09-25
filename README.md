@@ -17,7 +17,7 @@ VTray is a cross-platform V library to place an icon and menu in the notificatio
 ```v
 module main
 
-import vtray
+import ouri028.vtray
 
 enum MenuItems {
 	edit = 1
@@ -63,6 +63,18 @@ fn (app &App) on_click(menu_id int) {
 		}
 		else {}
 	}
+}
+```
+
+Edit v.mod
+
+```v
+Module {
+	name: 'myapp'
+	description: ''
+	version: '0.0.1'
+	license: 'MIT'
+	dependencies: ['ouri028.vtray']
 }
 ```
 
