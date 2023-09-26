@@ -3,18 +3,37 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <app-indicator.h>
+#include <libayatana-appindicator3-0.1/libayatana-appindicator/app-indicator.h>
 #include <gtk/gtk.h>
 
-struct VTray
-{
-    char identifier[256];
-    char tooltip[128];
+typedef struct VTrayParamsLinux VTrayParamsLinux;
+typedef struct MenuItemLinux MenuItemLinux;
 
+typedef void (*CallbackFunction)(int id);
+
+struct VTray {
     AppIndicator *indicator;
+    GtkWidget *menu;
+    CallbackFunction on_click;
 };
 
-struct VTray *vtray_init_linux(const char *identifier, const gchar *icon, const gchar *tooltip);
+struct VTrayParamsLinux {
+    char *identifier;
+    char *tooltip;
+    char *icon;
+    CallbackFunction on_click;
+};
+
+struct MenuItemLinux {
+    int id;
+    char *text;
+};
+
+struct VTray *vtray_init_linux(VTrayParamsLinux *params, size_t num_items, struct MenuItemLinux *items[]);
+
 void vtray_exit_linux(struct VTray *tray);
+
+void vtray_update_linux(struct VTray *tray);
+
 void vtray_run_linux(struct VTray *tray);
 #endif

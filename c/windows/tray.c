@@ -42,7 +42,7 @@ LRESULT CALLBACK vtray_wndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam
     return 0;
 }
 
-struct VTray *vtray_init_windows(VTrayParams *params, size_t num_items, struct MenuItem *items[]) {
+struct VTray *vtray_init_windows(VTrayParamsWindows *params, size_t num_items, struct MenuItemWindows *items[]) {
     struct VTray *tray = (struct VTray *) malloc(sizeof(struct VTray));
     if (!tray) {
         // Handle allocation failure
@@ -124,11 +124,11 @@ void vtray_update_windows(struct VTray *tray) {
     Shell_NotifyIcon(NIM_MODIFY, &tray->notifyData);
 }
 
-void vtray_construct(struct MenuItem *items[], size_t num_items, struct VTray *parent) {
+void vtray_construct(struct MenuItemWindows *items[], size_t num_items, struct VTray *parent) {
     parent->menu = CreatePopupMenu();
     if (parent->menu) {
         for (size_t i = 0; i < num_items; i++) {
-            struct MenuItem *item = items[i];
+            struct MenuItemWindows *item = items[i];
             MENUITEMINFO menuItem;
             memset(&menuItem, 0, sizeof(MENUITEMINFO));
             menuItem.cbSize = sizeof(MENUITEMINFO);

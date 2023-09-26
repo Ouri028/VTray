@@ -25,44 +25,58 @@ pub mut:
 
 pub fn (mut v VTrayApp) vtray_init() {
 	$if windows {
-		mut items := []&MenuItem{}
+		mut items := []&MenuItemWindows{}
 		for item in v.items {
-			convert := &MenuItem{
+			convert := &MenuItemWindows{
 				id: item.id
 				text: wchar.from_string(item.text)
 			}
 			items << convert
 		}
-		tray := C.vtray_init_windows(&VTrayParams{
-			identifier: &char(v.identifier.str)
+		tray := C.vtray_init_windows(&VTrayParamsWindows{
+			identifier: v.identifier.str
 			tooltip: wchar.from_string(v.tooltip)
-			icon: &char(v.icon.str)
+			icon: v.icon.str
 			on_click: v.on_click
 		}, usize(items.len), items.data)
 		v.tray = tray
+	} $else $if linux {
+		mut items := []&MenuItemLinux{}
+		for item in v.items {
+			convert := &MenuItemLinux{
+				id: item.id
+				text: item.text.str
+			}
+			items << convert
+		}
+		tray := C.vtray_init_linux(&VTrayParamsLinux{
+			identifier: v.identifier.str
+			tooltip: v.tooltip.str
+			icon: v.icon.str
+			on_click: v.on_click
+		}, usize(items.len), items.data)
+		v.tray = tray
+	} $else {
+		panic('Unsupported platform')
 	}
-	// } $else $if linux {
-	// 	C.vtray_init_linux(&char(tray_name.str), &char(icon_path.str), &char(tooltip.str))
-	// }
-	// panic('Unsupported platform')
 }
 
 pub fn (v &VTrayApp) run() {
 	$if windows {
 		C.vtray_run_windows(v.tray)
+	} $else $if linux {
+		C.vtray_run_linux(v.tray)
+	} $else {
+		panic('Unsupported platform')
 	}
-	// $else $if linux {
-	// 	C.vtray_run_linux(v)
-	// }
-	panic('Unsupported platform')
 }
 
 pub fn (v &VTrayApp) destroy() {
 	$if windows {
 		C.vtray_exit_windows(v.tray)
+	} $else $if linux {
+		C.vtray_exit_linux(v.tray)
+	} $else {
+		panic('Unsupported platform')
 	}
-	// $else $if linux {
-	// 	C.vtray_exit_linux(v)
-	// }
-	panic('Unsupported platform')
 }

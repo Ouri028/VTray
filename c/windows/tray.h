@@ -12,22 +12,21 @@
 #define WM_TRAYICON (WM_USER + 1)
 #define ID_TRAYICON 100
 
-typedef struct VTrayParams VTrayParams;
-typedef struct MenuItem MenuItem;
+typedef struct VTrayParamsWindows VTrayParamsWindows;
+typedef struct MenuItemWindows MenuItemWindows;
 
 typedef void (*CallbackFunction)(int id);
 
-struct VTrayParams {
+struct VTrayParamsWindows {
     char *identifier;
     wchar_t *tooltip;
     char *icon;
     CallbackFunction on_click;
 };
 
-struct MenuItem {
+struct MenuItemWindows {
     int id;
     wchar_t *text;
-//    char *image;
 };
 
 struct VTray {
@@ -42,13 +41,13 @@ struct VTray {
 };
 
 
-struct VTray *vtray_init_windows(VTrayParams *params, size_t num_items, struct MenuItem *items[]);
+struct VTray *vtray_init_windows(VTrayParamsWindows *params, size_t num_items, struct MenuItemWindows *items[]);
 
 void vtray_exit_windows(struct VTray *tray);
 
 void vtray_update_windows(struct VTray *tray);
 
-void vtray_construct(struct MenuItem *items[], size_t num_items, struct VTray *parent);
+void vtray_construct(struct MenuItemWindows *items[], size_t num_items, struct VTray *parent);
 
 void vtray_run_windows(struct VTray *tray);
 

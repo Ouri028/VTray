@@ -1,76 +1,63 @@
 #ifdef __linux__
 #include "tray.h"
-void tray_icon_activate(GtkMenuItem *item, gpointer user_data)
-{
-    // Handle tray icon click event here
-    // You can perform actions when the tray icon is clicked
+
+static void menu_item_activate(GtkMenuItem *menu_item, gpointer user_data) {
+    guint menu_id = GPOINTER_TO_UINT(g_object_get_data(G_OBJECT(menu_item), "menu-id"));
+    struct VTray *tray = (struct VTray *)user_data;
+    tray->on_click(menu_id);
 }
 
-struct VTray *vtray_init_linux(const char *identifier, const char *icon_path, const char *tooltip)
-{
+struct VTray *vtray_init_linux(VTrayParamsLinux *params, size_t num_items, struct MenuItemLinux *items[]) {
     struct VTray *tray = (struct VTray *)malloc(sizeof(struct VTray));
-    strncpy(tray->identifier, identifier, sizeof(tray->identifier));
-    strncpy(tray->tooltip, tooltip, sizeof(tray->tooltip));
-
-    if (!tray)
-    {
-        free(tray);
-        fprintf(stderr, "Failed to create window\n");
+    if (!tray) {
+        // Handle allocation failure
+        fprintf(stderr, "Failed to allocate VTray!\n");
         return NULL;
     }
 
     gtk_init(NULL, NULL);
 
-    tray->indicator = app_indicator_new(tray->identifier, icon_path, APP_INDICATOR_CATEGORY_APPLICATION_STATUS);
+    tray->indicator = app_indicator_new(params->identifier, params->icon, APP_INDICATOR_CATEGORY_APPLICATION_STATUS);
+     // Set the tooltip text for the indicator
+    app_indicator_set_title(tray->indicator, params->tooltip);
     app_indicator_set_status(tray->indicator, APP_INDICATOR_STATUS_ACTIVE);
-    app_indicator_set_attention_icon(tray->indicator, icon_path);
-    app_indicator_set_menu(tray->indicator, GTK_MENU(tray_icon_create_menu()));
-    app_indicator_set_label(tray->indicator, tray->tooltip, NULL);
+    app_indicator_set_attention_icon_full(tray->indicator, params->identifier, "New messages");
+    app_indicator_set_menu(tray->indicator, GTK_MENU(tray->menu));
+
+    tray->on_click = params->on_click;
+
+    // Create the menu
+    tray->menu = gtk_menu_new();
+
+    for (size_t i = 0; i < num_items; i++) {
+        GtkWidget *menu_item = gtk_menu_item_new_with_label(items[i]->text);
+        g_object_set_data(G_OBJECT(menu_item), "menu-id", GUINT_TO_POINTER(items[i]->id));
+        g_signal_connect(menu_item, "activate", G_CALLBACK(menu_item_activate), tray);
+        gtk_menu_shell_append(GTK_MENU_SHELL(tray->menu), menu_item);
+        gtk_widget_show(menu_item);
+    }
 
     return tray;
 }
 
-GtkMenu *tray_icon_create_menu()
-{
-    // Create a menu for your tray icon here
-    GtkMenu *menu = GTK_MENU(gtk_menu_new());
-
-    // Add menu items
-    GtkWidget *menu_item = gtk_menu_item_new_with_label("Item 1");
-    g_signal_connect(menu_item, "activate", G_CALLBACK(tray_icon_activate), NULL);
-    gtk_menu_shell_append(GTK_MENU_SHELL(menu), menu_item);
-
-    menu_item = gtk_menu_item_new_with_label("Item 2");
-    g_signal_connect(menu_item, "activate", G_CALLBACK(tray_icon_activate), NULL);
-    gtk_menu_shell_append(GTK_MENU_SHELL(menu), menu_item);
-
-    // Add a quit item
-    menu_item = gtk_menu_item_new_with_label("Quit");
-    g_signal_connect(menu_item, "activate", G_CALLBACK(gtk_main_quit), NULL);
-    gtk_menu_shell_append(GTK_MENU_SHELL(menu), menu_item);
-
-    return menu;
-}
-
-void vtray_exit_linux(struct VTray *tray)
-{
-    // Deallocate memory, destroy windows, etc.
-    if (tray)
-    {
-        app_indicator_unref(tray->indicator);
+void vtray_exit_linux(struct VTray *tray) {
+    // Deallocate memory, destroy the indicator, etc.
+    if (tray) {
+        if (tray->indicator)
+            g_object_unref(tray->indicator);
         free(tray);
+        gtk_main_quit();
     }
 }
 
-void vtray_update(struct VTray *tray)
-{
-    // Update the system tray icon and menu as needed.
+void vtray_run_linux(struct VTray *tray) {
+    // Run the GTK main loop
+    gtk_main();
 }
 
-void vtray_run_linux(struct VTray *tray)
-{
-    // Show and run your Linux application loop here.
-    gtk_main();
+void vtray_update_linux(struct VTray *tray) {
+    // Update the system tray icon and menu as needed
+    app_indicator_set_status(tray->indicator, APP_INDICATOR_STATUS_ACTIVE);
 }
 
 #endif
