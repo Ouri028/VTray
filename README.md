@@ -7,10 +7,20 @@ VTray is a cross-platform V library to place an icon and menu in the notificatio
 - [x] Create a tray
 - [x] Add an on click event listener
 - [x] Supported on Windows
-- [ ] Supported on Linux
+- [x] Supported on Linux
 - [ ] Supported on MacOS
 - [ ] Menu items can be checked and/or disabled
 - [ ] Allow menus to have their own icons
+
+## Requirements
+
+For Linux you will need the following packages installed:
+
+```bash
+sudo apt-get install libayatana-appindicator3-dev
+sudo apt-get install libgtk-3-dev
+sudo apt-get install pkg-config
+```
 
 ## Example
 

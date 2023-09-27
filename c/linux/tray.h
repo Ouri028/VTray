@@ -35,5 +35,12 @@ void vtray_exit_linux(struct VTray *tray);
 
 void vtray_update_linux(struct VTray *tray);
 
+void vtray_construct(struct MenuItemLinux *items[], size_t num_items, struct VTray *parent);
+
 void vtray_run_linux(struct VTray *tray);
+
+void set_global_vtray(void* ptr);
+
+void* get_global_vtray();
+
 #endif
