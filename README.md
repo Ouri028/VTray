@@ -87,9 +87,14 @@ Module {
 	dependencies: ['ouri028.vtray']
 }
 ```
+### Windows 11
 
 ![image1.png](assets%2Fimage1.png)
 
 ![image2.png](assets%2Fimage2.png)
 
 ![image3.png](assets%2Fimage3.png)
+
+### Linux
+
+![image4.png](assets%2Fimage4.png)
