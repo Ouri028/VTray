@@ -6,7 +6,6 @@ void* GLOBAL_TRAY = NULL;
 static void on_menu_item_clicked(GtkMenuItem *menu_item, gpointer user_data) {
     struct MenuItemLinux *item = (struct MenuItemLinux *)user_data;
     struct VTray *tray = (struct VTray *) get_global_vtray();
-    g_print("Menu item clicked: %s\n", item->text);
     if(tray != NULL) {
         tray->on_click(item->id);
     }
