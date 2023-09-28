@@ -1,6 +1,6 @@
 #ifdef __APPLE__
 
-static NSString *nsstring(char* c_string {
+static NSString *nsstring(char* c_string) {
   return [NSString stringWithUTF8String:c_string];
 }
 
@@ -9,24 +9,31 @@ static NSString *nsstring(char* c_string {
   NSAutoreleasePool *pool;
   NSApplication *app;
   NSStatusItem *statusItem;    // our button
-  main__VTrayParamsMac trayParams; // VTrayParamsMac is defined in tray.v
+  int num_items;
+  vtray__VTrayParamsMac *trayParams; // VTrayParamsMac is defined in tray.v
+  vtray__MenuItemMac *items[];
 }
 @end
 
 @implementation AppDelegate
-- (AppDelegate *)initWithParams:(main__VTrayParamsMac) params {
+- (AppDelegate *)initWithParams:(vtray__VTrayParamsMac *)params
+                        items:(vtray__MenuItemMac *)itemsArray
+                    numItems:(int)numItems {
   if (self = [super init]) {
     trayParams = params;
+//    memcpy(items, itemsArray, numItems * sizeof(vtray__MenuItemMac));
+    num_items = numItems;
   }
   return self;
 }
 
+
 // Called when NSMenuItem is clicked.
 - (void)onAction:(id)sender {
-  struct main__MenuItemMac *item =
-      (struct main__MenuItemMac *)[[sender representedObject] pointerValue];
+  struct vtray__MenuItemMac *item =
+      (struct vtray__MenuItemMac *)[[sender representedObject] pointerValue];
   if (item) {
-    trayParams->on_click(*item->id);
+    trayParams->on_click(item->id);
   }
 }
 
@@ -35,13 +42,12 @@ static NSString *nsstring(char* c_string {
   [menu autorelease];
   [menu setAutoenablesItems:NO];
 
-  main__MenuItemMac *params_items = trayParams.items.data;
-  for (int i = 0; i < trayParams.items.len; i++) {
-    NSString *title = nsstring(params_items[i]->text);
+  for (int i = 0; i < num_items; i++) {
+    NSString *title = nsstring(items[i]->text);
     NSMenuItem *item = [menu addItemWithTitle:title
                                        action:@selector(onAction:)
                                 keyEquivalent:@""];
-    NSValue *representedObject = [NSValue valueWithPointer:(params_items + i)];
+    NSValue *representedObject = [NSValue valueWithPointer:(items + i)];
     [item setRepresentedObject:representedObject];
     [item setTarget:self];
     [item autorelease];
@@ -80,9 +86,9 @@ static NSString *nsstring(char* c_string {
 @end
 
 // Initializes NSApplication and NSStatusItem, aka system tray menu item.
-main__VTray *vtray_init_mac(main__VTrayParamsMac *params) {
+vtray__VTray *vtray_init_mac(vtray__VTrayParamsMac *params, int numItems, vtray__MenuItemMac *itemsArray[]) {
   NSApplication *app = [NSApplication sharedApplication];
-  AppDelegate *appDelegate = [[AppDelegate alloc] initWithParams:params];
+  AppDelegate *appDelegate = [[AppDelegate alloc] initWithParams:params items:itemsArray numItems:numItems];
 
   // Hide icon from the doc.
   [app setActivationPolicy:NSApplicationActivationPolicyProhibited];
@@ -90,20 +96,20 @@ main__VTray *vtray_init_mac(main__VTrayParamsMac *params) {
 
   [appDelegate initTrayMenuItem];
 
-  main__VTray *tray = malloc(sizeof(main__VTray));
+  vtray__VTray *tray = malloc(sizeof(vtray__VTray));
   tray->ptr = app;
   tray->ptr_delegate = appDelegate;
   return tray;
 }
 
 // Blocks and runs the application.
-void vtray_run_mac(main__VTray *tray) {
+void vtray_run_mac(vtray__VTray *tray) {
   NSApplication *app = (NSApplication *)(tray->ptr);
   [app run];
 }
 
 // Terminates the app.
-void vtray_exit_windows(main__VTray *tray) {
+void vtray_exit_windows(vtray__VTray *tray) {
   NSApplication *app = (NSApplication *)(tray->ptr);
   [app terminate:app];
 }
