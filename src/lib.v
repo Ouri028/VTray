@@ -56,7 +56,25 @@ pub fn (mut v VTrayApp) vtray_init() {
 			on_click: v.on_click
 		}, usize(items.len), items.data)
 		v.tray = tray
-	} $else {
+	}
+	$else $if {
+		mut items := []&MenuItemMac{}
+		for item in v.items {
+			convert := &MenuItemMac{
+				id: item.id
+				text: item.text.str
+			}
+			items << convert
+		}
+		tray := C.vtray_init_mac(&VTrayParamsMac{
+			identifier: v.identifier.str
+			tooltip: v.tooltip.str
+			icon: v.icon.str
+			on_click: v.on_click
+		}, usize(items.len), items.data)
+		v.tray = tray
+	}
+	$else {
 		panic('Unsupported platform')
 	}
 }
