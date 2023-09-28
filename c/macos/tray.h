@@ -12,16 +12,16 @@ typedef void (*CallbackFunction)(int id);
 
 struct VTrayParamsMac
 {
-    char *identifier;
-    char *tooltip;
-    char *icon;
+    string identifier;
+    string tooltip;
+    string icon;
     CallbackFunction on_click;
 };
 
 struct MenuItemMac
 {
     int id;
-    char *text;
+    string text;
 };
 
 struct VTray
@@ -33,8 +33,6 @@ struct VTray
 struct VTray *vtray_init_mac(VTrayParamsMac *params, size_t num_items, MenuItemMac *items[]);
 
 void vtray_exit_mac(struct VTray *tray);
-
-void vtray_update_mac(struct VTray *tray);
 
 void vtray_construct(struct MenuItemMac *items[], size_t num_items, struct VTray *parent);
 
