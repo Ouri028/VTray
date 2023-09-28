@@ -56,8 +56,7 @@ pub fn (mut v VTrayApp) vtray_init() {
 			on_click: v.on_click
 		}, usize(items.len), items.data)
 		v.tray = tray
-	}
-	$else $if {
+	} $else $if macos {
 		mut items := []&MenuItemMac{}
 		for item in v.items {
 			convert := &MenuItemMac{
@@ -73,8 +72,7 @@ pub fn (mut v VTrayApp) vtray_init() {
 			on_click: v.on_click
 		}, usize(items.len), items.data)
 		v.tray = tray
-	}
-	$else {
+	} $else {
 		panic('Unsupported platform')
 	}
 }

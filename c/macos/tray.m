@@ -1,15 +1,24 @@
 #ifdef __APPLE__
 #include "tray.h"
 
+void *GLOBAL_TRAY = NULL;
+
+static NSString *nsstring(char* c_string {
+  return [NSString stringWithUTF8String:c_string];
+}
 
 // Callback for the tray icon click
-void vtray_on_click(NSMenuItem *sender) {
-     struct MenuItemMac *item =
-      (struct MenuItemMac *)[[sender representedObject] pointerValue];
-  if (item) {
-    trayParams.on_click(item->id);
-  }
+void on_menu_item_clicked(NSMenuItem *menuItem) {
+    MenuItemMac *item = (MenuItemMac *)menuItem.representedObject;
+    VTray *tray = (__bridge VTray *)get_global_vtray();
+    if (tray != nil) {
+        const char *itemId = [item.text UTF8String];
+        tray->on_click(itemId);
+    } else {
+        NSLog(@"Global pointer is NULL");
+    }
 }
+
 
 // Create and initialize your VTray instance
 struct VTray *vtray_init_mac(VTrayParamsMac *params, size_t num_items, MenuItemMac *items[]) {
@@ -26,11 +35,11 @@ struct VTray *vtray_init_mac(VTrayParamsMac *params, size_t num_items, MenuItemM
     // Create a status item in the system menu bar
     tray->statusItem = [NSStatusBar.systemStatusBar statusItemWithLength:NSVariableStatusItemLength];
     // Deprecated
-    tray->statusItem.toolTip = [NSString stringWithUTF8String:params->tooltip];
-    tray->statusItem.button.image = [NSImage imageNamed:[NSString stringWithUTF8String:params->icon]];
+    tray->statusItem.toolTip = [NSString stringWithUTF8String:nsstring(params->tooltip)];
+    tray->statusItem.button.image = [NSImage imageNamed:[NSString stringWithUTF8String:nsstring(params->icon)]];
 
     // Create a menu
-    tray->menu = [[NSMenu alloc] initWithTitle:params->tooltip];
+    tray->menu = [[NSMenu alloc] initWithTitle:nsstring(params->tooltip)];
     vtray_construct(items, num_items, tray);
     tray->statusItem.menu = tray->menu;
 
@@ -46,7 +55,7 @@ void vtray_construct(MenuItemMac *items[], size_t num_items, struct VTray *paren
     if (parent->menu) {
         for (size_t i = 0; i < num_items; i++) {
             MenuItemMac *item = items[i];
-            NSMenuItem *menuItem = [[NSMenuItem alloc] initWithTitle:[NSString stringWithUTF8String:item->text] action:@selector(vtray_on_click:) keyEquivalent:@""];
+            NSMenuItem *menuItem = [[NSMenuItem alloc] initWithTitle:[NSString stringWithUTF8String:nsstring(item->text)] action:@selector(vtray_on_click:) keyEquivalent:@""];
             menuItem.tag = item->id;
             [menuItem setTarget:nil];
             [parent->menu addItem:menuItem];

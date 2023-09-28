@@ -12,16 +12,16 @@ typedef void (*CallbackFunction)(int id);
 
 struct VTrayParamsMac
 {
-    string identifier;
-    string tooltip;
-    string icon;
+    char* identifier;
+    char* tooltip;
+    char* icon;
     CallbackFunction on_click;
 };
 
 struct MenuItemMac
 {
     int id;
-    string text;
+    char* text;
 };
 
 struct VTray
