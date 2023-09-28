@@ -11,9 +11,9 @@ $if windows {
 	#flag @VMODROOT/c/linux/tray.c
 	#include "@VMODROOT/c/linux/tray.h"
 } $else $if macos {
-	#flag @VMODROOT/c/macos/tray.m
+	#include <Cocoa/Cocoa.h>
 	#flag -framework Cocoa
-	#include "@VMODROOT/c/macos/tray.h"
+	#include "@VMODROOT/c/macos/tray.m"
 }
 
 $if linux {
