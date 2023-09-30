@@ -52,7 +52,7 @@ static NSString *nsstring(char* s) {
     NSMenuItem *item = [menu addItemWithTitle:title
                                        action:@selector(onAction:)
                                 keyEquivalent:@""];
-    NSValue *representedObject = [NSValue valueWithPointer:(menuItems + i)];
+    NSValue *representedObject = [NSValue valueWithPointer:(menuItems[i])];
     [item setRepresentedObject:representedObject];
     [item setTarget:self];
     [item autorelease];
