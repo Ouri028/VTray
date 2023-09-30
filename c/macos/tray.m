@@ -1,6 +1,12 @@
 #ifdef __APPLE__
 #include <stdlib.h>
 
+/**
+ * This code was based off of https://github.com/vlang/v/blob/master/examples/macos_tray/tray.m
+ * All credit goes to the legend who created this.
+ */
+
+
 static NSString *nsstring(char* s) {
     NSString *myNSString = [NSString stringWithUTF8String:s];
     return myNSString;
@@ -69,10 +75,15 @@ static NSString *nsstring(char* s) {
   [statusItem setVisible:YES];
   NSStatusBarButton *statusBarButton = [statusItem button];
   // Height must be 22px.
-  NSImage *img = [NSImage imageNamed:nsstring(trayParams->icon)];
-  [statusBarButton setImage:img];
-  NSMenu *menu = [self buildMenu];
-  [statusItem setMenu:menu];
+    NSImage *img = [[NSImage alloc] initWithContentsOfFile:nsstring(trayParams->icon)];
+  if (img == nil) {
+    NSLog(@"Error loading image: %@", nsstring(trayParams->icon));
+    // Check the image path and file as well as other potential issues.
+    } else {
+        [statusBarButton setImage:img];
+        NSMenu *menu = [self buildMenu];
+        [statusItem setMenu:menu];
+    }
 }
 
 - (void)applicationWillFinishLaunching:(NSNotification *)notification {

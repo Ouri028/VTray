@@ -8,7 +8,7 @@ VTray is a cross-platform V library to place an icon and menu in the notificatio
 - [x] Add an on click event listener
 - [x] Supported on Windows
 - [x] Supported on Linux
-- [ ] Supported on MacOS
+- [x] Supported on MacOS
 - [ ] Menu items can be checked and/or disabled
 - [ ] Allow menus to have their own icons
 
@@ -21,6 +21,8 @@ sudo apt-get install libayatana-appindicator3-dev
 sudo apt-get install libgtk-3-dev
 sudo apt-get install pkg-config
 ```
+
+For MacOS the tray icon size must be 22x22 pixels in order for it to render correctly.
 
 ## Example
 
@@ -98,3 +100,7 @@ Module {
 ### Linux
 
 ![image4.png](assets%2Fimage4.png)
+
+### MacOS
+
+![image5.png](assets%2Fimage5.png)
