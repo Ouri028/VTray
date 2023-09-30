@@ -5,6 +5,8 @@ VTray is a cross-platform V library to place an icon and menu in the notificatio
 ## Features
 
 - [x] Create a tray
+- [x] Custom icon for tray
+- [x] Add tooltip.
 - [x] Add an on click event listener
 - [x] Supported on Windows
 - [x] Supported on Linux
