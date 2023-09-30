@@ -1,8 +1,10 @@
 #ifdef __APPLE__
 #include <stdlib.h>
 
-static NSString *nsstring(char* c_string) {
-  return [NSString stringWithUTF8String:c_string];
+static NSString *nsstring(char* s) {
+    NSString *myNSString = [NSString stringWithUTF8String:s];
+    return myNSString;
+
 }
 
 // Manages the app lifecycle.
@@ -46,17 +48,15 @@ static NSString *nsstring(char* c_string) {
   [menu setAutoenablesItems:NO];
 
   for (int i = 0; i < num_items; i++) {
-  NSLog(@"%s", menuItems[i]->text);
-
-//    NSString *title = nsstring(items[i]->text);
-//    NSMenuItem *item = [menu addItemWithTitle:title
-//                                       action:@selector(onAction:)
-//                                keyEquivalent:@""];
-//    NSValue *representedObject = [NSValue valueWithPointer:(items + i)];
-//    [item setRepresentedObject:representedObject];
-//    [item setTarget:self];
-//    [item autorelease];
-//    [item setEnabled:YES];
+    NSString *title = nsstring(menuItems[i]->text);
+    NSMenuItem *item = [menu addItemWithTitle:title
+                                       action:@selector(onAction:)
+                                keyEquivalent:@""];
+    NSValue *representedObject = [NSValue valueWithPointer:(menuItems + i)];
+    [item setRepresentedObject:representedObject];
+    [item setTarget:self];
+    [item autorelease];
+    [item setEnabled:YES];
   }
 
   return menu;
@@ -68,12 +68,11 @@ static NSString *nsstring(char* c_string) {
   [statusItem retain];
   [statusItem setVisible:YES];
   NSStatusBarButton *statusBarButton = [statusItem button];
-
   // Height must be 22px.
-//  NSImage *img = [NSImage imageNamed:trayParams->icon];
-//  [statusBarButton setImage:img];
+  NSImage *img = [NSImage imageNamed:nsstring(trayParams->icon)];
+  [statusBarButton setImage:img];
   NSMenu *menu = [self buildMenu];
-//  [statusItem setMenu:menu];
+  [statusItem setMenu:menu];
 }
 
 - (void)applicationWillFinishLaunching:(NSNotification *)notification {
