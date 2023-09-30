@@ -21,6 +21,7 @@ static NSString *nsstring(char* c_string) {
                     numItems:(int)numItems {
   if (self = [super init]) {
     trayParams = params;
+
 //    memcpy(items, itemsArray, numItems * sizeof(vtray__MenuItemMac));
     num_items = numItems;
   }

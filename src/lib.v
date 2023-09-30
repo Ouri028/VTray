@@ -2,7 +2,7 @@ module vtray
 
 import builtin.wchar
 
-// Create a V struct that is easier to use for the end user.
+// VTrayApp is the main struct that represents the tray app.
 [heap]
 pub struct VTrayApp {
 mut:
@@ -15,6 +15,7 @@ pub mut:
 	on_click   fn (menu_id int) = unsafe { nil }
 }
 
+// VTrayMenuItem is a menu item that can be added to the tray.
 pub struct VTrayMenuItem {
 pub mut:
 	id   int
@@ -23,6 +24,7 @@ pub mut:
 	// image    &char
 }
 
+// Init VTray and convert the VTrayApp struct to the C struct based on the platform.
 pub fn (mut v VTrayApp) vtray_init() {
 	$if windows {
 		mut items := []&MenuItemWindows{}
@@ -77,6 +79,7 @@ pub fn (mut v VTrayApp) vtray_init() {
 	}
 }
 
+// Run the tray app.
 pub fn (v &VTrayApp) run() {
 	$if windows {
 		C.vtray_run_windows(v.tray)
@@ -87,6 +90,7 @@ pub fn (v &VTrayApp) run() {
 	}
 }
 
+// Destroy the tray app and free the memory.
 pub fn (v &VTrayApp) destroy() {
 	$if windows {
 		C.vtray_exit_windows(v.tray)
