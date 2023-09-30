@@ -85,6 +85,8 @@ pub fn (v &VTrayApp) run() {
 		C.vtray_run_windows(v.tray)
 	} $else $if linux {
 		C.vtray_run_linux(v.tray)
+	} $else $if macos {
+		C.vtray_run_mac(v.tray)
 	} $else {
 		panic('Unsupported platform')
 	}
@@ -96,6 +98,8 @@ pub fn (v &VTrayApp) destroy() {
 		C.vtray_exit_windows(v.tray)
 	} $else $if linux {
 		C.vtray_exit_linux(v.tray)
+	} $else $if macos {
+		C.vtray_exit_mac(v.tray)
 	} $else {
 		panic('Unsupported platform')
 	}

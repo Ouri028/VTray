@@ -1,4 +1,5 @@
 #ifdef __APPLE__
+#include <stdlib.h>
 
 static NSString *nsstring(char* c_string) {
   return [NSString stringWithUTF8String:c_string];
@@ -17,12 +18,14 @@ static NSString *nsstring(char* c_string) {
 
 @implementation AppDelegate
 - (AppDelegate *)initWithParams:(vtray__VTrayParamsMac *)params
-                        items:(vtray__MenuItemMac *)itemsArray
+                        items:(vtray__MenuItemMac *[])itemsArray
                     numItems:(int)numItems {
   if (self = [super init]) {
     trayParams = params;
 
-//    memcpy(items, itemsArray, numItems * sizeof(vtray__MenuItemMac));
+    // add printf here to see if it's called
+     printf(itemsArray[0]->text);
+
     num_items = numItems;
   }
   return self;
@@ -95,7 +98,7 @@ vtray__VTray *vtray_init_mac(vtray__VTrayParamsMac *params, int numItems, vtray_
   [app setActivationPolicy:NSApplicationActivationPolicyProhibited];
   [app setDelegate:appDelegate];
 
-  [appDelegate initTrayMenuItem];
+//  [appDelegate initTrayMenuItem];
 
   vtray__VTray *tray = malloc(sizeof(vtray__VTray));
   tray->ptr = app;
@@ -110,7 +113,7 @@ void vtray_run_mac(vtray__VTray *tray) {
 }
 
 // Terminates the app.
-void vtray_exit_windows(vtray__VTray *tray) {
+void vtray_exit_mac(vtray__VTray *tray) {
   NSApplication *app = (NSApplication *)(tray->ptr);
   [app terminate:app];
 }

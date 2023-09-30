@@ -1,5 +1,5 @@
 CC = v
-ARGS = -cg -cc gcc
+ARGS = -use-os-system-to-run -cg -cc gcc
 
 all:
 	$(CC) $(ARGS) run .
