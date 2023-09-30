@@ -12,21 +12,20 @@ static NSString *nsstring(char* c_string) {
   NSStatusItem *statusItem;    // our button
   int num_items;
   vtray__VTrayParamsMac *trayParams; // VTrayParamsMac is defined in tray.v
-  vtray__MenuItemMac *items[];
+  vtray__MenuItemMac **menuItems;
 }
 @end
 
 @implementation AppDelegate
 - (AppDelegate *)initWithParams:(vtray__VTrayParamsMac *)params
-                        items:(vtray__MenuItemMac *[])itemsArray
+                        itemsArray:(vtray__MenuItemMac *[])itemsArray
                     numItems:(int)numItems {
   if (self = [super init]) {
     trayParams = params;
-
-    // add printf here to see if it's called
-     printf(itemsArray[0]->text);
-
     num_items = numItems;
+    menuItems = itemsArray;
+
+
   }
   return self;
 }
@@ -47,15 +46,17 @@ static NSString *nsstring(char* c_string) {
   [menu setAutoenablesItems:NO];
 
   for (int i = 0; i < num_items; i++) {
-    NSString *title = nsstring(items[i]->text);
-    NSMenuItem *item = [menu addItemWithTitle:title
-                                       action:@selector(onAction:)
-                                keyEquivalent:@""];
-    NSValue *representedObject = [NSValue valueWithPointer:(items + i)];
-    [item setRepresentedObject:representedObject];
-    [item setTarget:self];
-    [item autorelease];
-    [item setEnabled:YES];
+  NSLog(@"%s", menuItems[i]->text);
+
+//    NSString *title = nsstring(items[i]->text);
+//    NSMenuItem *item = [menu addItemWithTitle:title
+//                                       action:@selector(onAction:)
+//                                keyEquivalent:@""];
+//    NSValue *representedObject = [NSValue valueWithPointer:(items + i)];
+//    [item setRepresentedObject:representedObject];
+//    [item setTarget:self];
+//    [item autorelease];
+//    [item setEnabled:YES];
   }
 
   return menu;
@@ -69,10 +70,10 @@ static NSString *nsstring(char* c_string) {
   NSStatusBarButton *statusBarButton = [statusItem button];
 
   // Height must be 22px.
-  NSImage *img = [NSImage imageNamed:trayParams->icon];
-  [statusBarButton setImage:img];
+//  NSImage *img = [NSImage imageNamed:trayParams->icon];
+//  [statusBarButton setImage:img];
   NSMenu *menu = [self buildMenu];
-  [statusItem setMenu:menu];
+//  [statusItem setMenu:menu];
 }
 
 - (void)applicationWillFinishLaunching:(NSNotification *)notification {
@@ -92,13 +93,13 @@ static NSString *nsstring(char* c_string) {
 // Initializes NSApplication and NSStatusItem, aka system tray menu item.
 vtray__VTray *vtray_init_mac(vtray__VTrayParamsMac *params, int numItems, vtray__MenuItemMac *itemsArray[]) {
   NSApplication *app = [NSApplication sharedApplication];
-  AppDelegate *appDelegate = [[AppDelegate alloc] initWithParams:params items:itemsArray numItems:numItems];
+  AppDelegate *appDelegate = [[AppDelegate alloc] initWithParams:params itemsArray:itemsArray numItems:numItems];
 
   // Hide icon from the doc.
   [app setActivationPolicy:NSApplicationActivationPolicyProhibited];
   [app setDelegate:appDelegate];
 
-//  [appDelegate initTrayMenuItem];
+  [appDelegate initTrayMenuItem];
 
   vtray__VTray *tray = malloc(sizeof(vtray__VTray));
   tray->ptr = app;
