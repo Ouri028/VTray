@@ -7,43 +7,35 @@ enum MenuItems {
 	quit = 2
 }
 
-struct App {
-pub mut:
-	tray vtray.VTrayApp
-}
-
 fn main() {
-	mut app := App{
-		tray: vtray.VTrayApp{
-			identifier: 'VTray!'
-			tooltip: 'VTray Demo!'
-			icon: '${@VMODROOT}/assets/icon.ico'
-			items: [
-				&vtray.VTrayMenuItem{
-					id: int(MenuItems.edit)
-					text: 'Edit'
-				},
-				&vtray.VTrayMenuItem{
-					id: int(MenuItems.quit)
-					text: 'Quit'
-				},
-			]
+	mut systray := &vtray.VTrayApp{
+		identifier: 'VTray!'
+		tooltip: 'VTray Demo!'
+		icon: '${@VMODROOT}/assets/icon.png'
+		items: [
+			&vtray.VTrayMenuItem{
+				id: int(MenuItems.edit)
+				text: 'Edit'
+			},
+			&vtray.VTrayMenuItem{
+				id: int(MenuItems.quit)
+				text: 'Quit'
+			},
+		]
+	}
+	on_click := fn [systray] (menu_id int) {
+		match menu_id {
+			int(MenuItems.edit) {
+				println('EDIT!')
+			}
+			int(MenuItems.quit) {
+				systray.destroy()
+			}
+			else {}
 		}
 	}
-	app.tray.on_click = app.on_click
-	app.tray.vtray_init()
-	app.tray.run()
-	app.tray.destroy()
-}
-
-fn (app &App) on_click(menu_id int) {
-	match menu_id {
-		int(MenuItems.edit) {
-			println('EDIT!')
-		}
-		int(MenuItems.quit) {
-			app.tray.destroy()
-		}
-		else {}
-	}
+	systray.on_click = on_click
+	systray.vtray_init()
+	systray.run()
+	systray.destroy()
 }
