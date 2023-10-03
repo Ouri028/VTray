@@ -10,7 +10,6 @@
 static NSString *nsstring(char* s) {
     NSString *myNSString = [NSString stringWithUTF8String:s];
     return myNSString;
-
 }
 
 // Manages the app lifecycle.
@@ -86,16 +85,8 @@ static NSString *nsstring(char* s) {
     }
 }
 
-- (void)applicationWillFinishLaunching:(NSNotification *)notification {
-  NSLog(@"applicationWillFinishLaunching called");
-}
-
-- (void)applicationWillTerminate:(NSNotification *)notif;
-{ NSLog(@"applicationWillTerminate called"); }
-
 - (NSApplicationTerminateReply)applicationShouldTerminate:
     (NSApplication *)sender {
-  NSLog(@"applicationShouldTerminate called");
   return NSTerminateNow;
 }
 @end
