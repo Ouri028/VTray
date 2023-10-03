@@ -89,6 +89,7 @@ static NSString *nsstring(char* s) {
     (NSApplication *)sender {
   return NSTerminateNow;
 }
+
 @end
 
 // Initializes NSApplication and NSStatusItem, aka system tray menu item.
@@ -96,8 +97,8 @@ vtray__VTray *vtray_init_mac(vtray__VTrayParamsMac *params, int numItems, vtray_
   NSApplication *app = [NSApplication sharedApplication];
   AppDelegate *appDelegate = [[AppDelegate alloc] initWithParams:params itemsArray:itemsArray numItems:numItems];
 
-  // Hide icon from the doc.
-  [app setActivationPolicy:NSApplicationActivationPolicyProhibited];
+  [app setActivationPolicy:NSApplicationActivationPolicyRegular];
+
   [app setDelegate:appDelegate];
 
   [appDelegate initTrayMenuItem];
