@@ -1,7 +1,5 @@
 module vtray
 
-import builtin.wchar
-
 // VTrayApp is the main struct that represents the tray app.
 [heap]
 pub struct VTrayApp {
@@ -12,7 +10,7 @@ pub mut:
 	tooltip    string
 	icon       string
 	items      []&VTrayMenuItem
-	on_click   fn (menu_id int) = unsafe { nil }
+	on_click   fn (menu_item &VTrayMenuItem) = unsafe { nil }
 }
 
 // VTrayMenuItem is a menu item that can be added to the tray.
@@ -23,91 +21,25 @@ pub mut:
 	checked   bool
 	disabled  bool
 	checkable bool
-	// TODO: Add menu item icons.
-	// image    &char
 }
 
-// vtray_init Init VTray and convert the VTrayApp struct to the C struct based on the platform.
 // For MacOS the tray icon size must be 22x22 pixels in order for it to render correctly.
 pub fn (mut v VTrayApp) vtray_init() {
-	$if windows {
-		mut items := []&MenuItemWindows{}
-		for item in v.items {
-			convert := &MenuItemWindows{
-				id: item.id
-				text: wchar.from_string(item.text)
-				checkable: item.checkable
-				checked: item.checked
-				disabled: item.disabled
-			}
-			items << convert
-		}
-		tray := C.vtray_init_windows(&VTrayParamsWindows{
-			identifier: v.identifier.str
-			tooltip: wchar.from_string(v.tooltip)
-			icon: v.icon.str
-			on_click: v.on_click
-		}, usize(items.len), items.data)
-		v.tray = tray
-	} $else $if linux {
-		mut items := []&MenuItemLinux{}
-		for item in v.items {
-			convert := &MenuItemLinux{
-				id: item.id
-				text: item.text.str
-			}
-			items << convert
-		}
-		tray := C.vtray_init_linux(&VTrayParamsLinux{
-			identifier: v.identifier.str
-			tooltip: v.tooltip.str
-			icon: v.icon.str
-			on_click: v.on_click
-		}, usize(items.len), items.data)
-		v.tray = tray
-	} $else $if macos {
-		mut items := []&MenuItemMac{}
-		for item in v.items {
-			convert := &MenuItemMac{
-				id: item.id
-				text: item.text.str
-			}
-			items << convert
-		}
-		tray := C.vtray_init_mac(&VTrayParamsMac{
-			identifier: v.identifier.str
-			tooltip: v.tooltip.str
-			icon: v.icon.str
-			on_click: v.on_click
-		}, usize(items.len), items.data)
-		v.tray = tray
-	} $else {
-		panic('Unsupported platform')
-	}
+	tray := C.vtray_init(&VTrayParams{
+		identifier: v.identifier
+		tooltip: v.tooltip
+		icon: v.icon
+		on_click: v.on_click
+	}, usize(v.items.len), v.items.data)
+	v.tray = tray
 }
 
 // run Run the tray app.
 pub fn (v &VTrayApp) run() {
-	$if windows {
-		C.vtray_run_windows(v.tray)
-	} $else $if linux {
-		C.vtray_run_linux(v.tray)
-	} $else $if macos {
-		C.vtray_run_mac(v.tray)
-	} $else {
-		panic('Unsupported platform')
-	}
+	C.vtray_run(v.tray)
 }
 
 // destroy Destroy the tray app and free the memory.
 pub fn (v &VTrayApp) destroy() {
-	$if windows {
-		C.vtray_exit_windows(v.tray)
-	} $else $if linux {
-		C.vtray_exit_linux(v.tray)
-	} $else $if macos {
-		C.vtray_exit_mac(v.tray)
-	} $else {
-		panic('Unsupported platform')
-	}
+	C.vtray_exit(v.tray)
 }

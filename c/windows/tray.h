@@ -2,34 +2,32 @@
 #ifdef _WIN32
 
 #include <windows.h>
-#include <tchar.h>
-#include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
 #include <shellapi.h>
 #include <stdbool.h>
+#include "utils.h"
 
 #define WM_TRAYICON (WM_USER + 1)
 #define ID_TRAYICON 100
 
-typedef struct VTrayParamsWindows VTrayParamsWindows;
-typedef struct MenuItemWindows MenuItemWindows;
+typedef struct VTrayParams VTrayParams;
+typedef struct VTrayMenuItem VTrayMenuItem;
 
-typedef void (*CallbackFunction)(int id);
+typedef void (*CallbackFunction)(VTrayMenuItem *menu_item);
 
-struct VTrayParamsWindows
+struct VTrayParams
 {
-    char *identifier;
-    wchar_t *tooltip;
-    char *icon;
+    String identifier;
+    String tooltip;
+    String icon;
     CallbackFunction on_click;
 };
 
-struct MenuItemWindows
+struct VTrayMenuItem
 {
     int id;
-    wchar_t *text;
+    String text;
     bool checked;
     bool disabled;
     bool checkable;
@@ -45,15 +43,15 @@ struct VTray
     HWND hwnd;
     wchar_t *tooltip;
     CallbackFunction on_click;
-    struct MenuItemWindows **items;
+    struct VTrayMenuItem **items;
     size_t num_items;
 };
 
-struct VTray *vtray_init_windows(VTrayParamsWindows *params, size_t num_items, struct MenuItemWindows *items[]);
+struct VTray *vtray_init(VTrayParams *params, size_t num_items, struct VTrayMenuItem *items[]);
 
-void vtray_exit_windows(struct VTray *tray);
+void vtray_exit(struct VTray *tray);
 
-void vtray_update_windows(struct VTray *tray);
+void vtray_update(struct VTray *tray);
 
 void vtray_construct(struct VTray *parent);
 
@@ -65,8 +63,8 @@ BOOL is_menu_item_checked(HMENU menu, UINT menuId);
 
 MENUITEMINFO get_menu_item_by_id(HMENU menu, UINT menu_id);
 
-MenuItemWindows *get_vmenu_item_by_id(int menu_id, struct VTray *tray);
+VTrayMenuItem *get_vmenu_item_by_id(int menu_id, struct VTray *tray);
 
-void vtray_run_windows(struct VTray *tray);
+void vtray_run(struct VTray *tray);
 
 #endif
