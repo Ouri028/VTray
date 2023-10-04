@@ -1,6 +1,5 @@
-#include "utils.h"
-
 #ifdef _WIN32
+#include "utils.h"
 char *string_to_char(String string)
 {
     if (string.str == NULL)
