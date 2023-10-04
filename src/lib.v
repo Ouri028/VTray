@@ -18,13 +18,17 @@ pub mut:
 // VTrayMenuItem is a menu item that can be added to the tray.
 pub struct VTrayMenuItem {
 pub mut:
-	id   int
-	text string
+	id        int
+	text      string
+	checked   bool
+	disabled  bool
+	checkable bool
 	// TODO: Add menu item icons.
 	// image    &char
 }
 
 // vtray_init Init VTray and convert the VTrayApp struct to the C struct based on the platform.
+// For MacOS the tray icon size must be 22x22 pixels in order for it to render correctly.
 pub fn (mut v VTrayApp) vtray_init() {
 	$if windows {
 		mut items := []&MenuItemWindows{}
@@ -32,6 +36,9 @@ pub fn (mut v VTrayApp) vtray_init() {
 			convert := &MenuItemWindows{
 				id: item.id
 				text: wchar.from_string(item.text)
+				checkable: item.checkable
+				checked: item.checked
+				disabled: item.disabled
 			}
 			items << convert
 		}

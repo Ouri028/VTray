@@ -11,7 +11,11 @@ fn main() {
 	mut systray := &vtray.VTrayApp{
 		identifier: 'VTray!'
 		tooltip: 'VTray Demo!'
-		icon: '${@VMODROOT}/assets/icon.png'
+		icon: if macos {
+			'${@VMODROOT}/assets/icon.png'
+		} else {
+			'${@VMODROOT}/assets/icon.ico'
+		}
 		items: [
 			&vtray.VTrayMenuItem{
 				id: int(MenuItems.edit)

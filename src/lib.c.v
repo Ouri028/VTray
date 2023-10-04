@@ -29,24 +29,27 @@ struct VTray {
 }
 
 // we need to use primitive types for C
-pub struct MenuItemWindows {
+struct MenuItemWindows {
 pub mut:
-	id   int
-	text &wchar.Character
+	id        int
+	text      &wchar.Character
+	checked   bool
+	disabled  bool
+	checkable bool
 	// TODO: Add menu item icons.
 	// image    &char
 }
 
-pub struct MenuItemLinux {
-pub mut:
+struct MenuItemLinux {
+mut:
 	id   int
 	text &char
 	// TODO: Add menu item icons.
 	// image    &char
 }
 
-pub struct MenuItemMac {
-pub mut:
+struct MenuItemMac {
+mut:
 	id   int
 	text &char
 	// TODO: Add menu item icons.
