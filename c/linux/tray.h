@@ -51,7 +51,7 @@ void vtray_construct(struct VTray *parent);
 
 void vtray_update_menu_item(struct VTray *tray, int menu_id);
 
-GtkMenuItem *get_menu_by_label(struct VTray *parent, char *label);
+GtkMenuItem *get_menu_item_by_label(struct VTray *tray, char *label);
 
 VTrayMenuItem *get_vmenu_item_by_id(int menu_id, struct VTray *tray);
 

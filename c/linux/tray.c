@@ -25,10 +25,10 @@ static void on_toggle_menu_item_clicked(GtkCheckMenuItem *menu_item, gpointer us
     {
         vtray_update_menu_item(tray, item->id);
     }
-    // else
-    // {
-    //     printf("Global pointer is NULL\n");
-    // }
+    else
+    {
+        printf("Global pointer is NULL\n");
+    }
 }
 
 struct VTray *vtray_init(VTrayParams *params, size_t num_items, struct VTrayMenuItem *items[])
@@ -75,24 +75,27 @@ void vtray_construct(struct VTray *parent)
 
     if (parent->menu)
     {
-        parent->menus = g_array_new(FALSE, FALSE, sizeof(int));
+        parent->num_menus = 0;
+
         for (size_t i = 0; i < parent->num_items; i++)
         {
             struct VTrayMenuItem *item = parent->items[i];
-            GtkWidget *menu_item;
+            GtkMenuItem *menu_item;
             if (item->checkable)
             {
+                size_t len = parent->num_menus;
                 menu_item = gtk_check_menu_item_new_with_label(string_to_char(item->text));
                 gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu_item), item->checked);         // Set initial state to checked
                 g_signal_connect(menu_item, "toggled", G_CALLBACK(on_toggle_menu_item_clicked), item); // Connect to the "toggled" signal
-                g_array_append_val(parent->menus, menu_item);
+                parent->menus[len] = menu_item;
                 parent->num_menus++;
             }
             else
             {
+                size_t len = parent->num_menus;
                 menu_item = gtk_menu_item_new_with_label(string_to_char(item->text));
                 g_signal_connect(menu_item, "activate", G_CALLBACK(on_menu_item_clicked), item);
-                g_array_append_val(parent->menus, menu_item);
+                parent->menus[len] = menu_item;
                 parent->num_menus++;
             }
             gtk_menu_shell_append(GTK_MENU_SHELL(parent->menu), menu_item);
@@ -107,16 +110,17 @@ void vtray_construct(struct VTray *parent)
 void vtray_update_menu_item(struct VTray *tray, int menu_id)
 {
     VTrayMenuItem *item = get_vmenu_item_by_id(menu_id, tray);
+    GtkMenuItem *menu_item = get_menu_item_by_label(tray, string_to_char(item->text));
     if (item == NULL)
     {
         fprintf(stderr, "Failed to find menu item with ID %d\n", menu_id);
-        return NULL;
+        return;
     }
 
     if (!item->checkable)
     {
         tray->on_click(item);
-        return NULL;
+        return;
     }
     if (gtk_check_menu_item_get_active(menu_item))
     {
@@ -127,23 +131,21 @@ void vtray_update_menu_item(struct VTray *tray, int menu_id)
         item->checked = false;
     }
 
-    GtkWidget *menu_item = GTK_WIDGET(gtk_menu_get_children(tray->menu)->data);
     gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu_item), item->checked);
+
     tray->on_click(item);
 }
 
-GtkMenu *get_menu_by_label(struct VTray *parent, char *label)
+GtkMenuItem *get_menu_item_by_label(struct VTray *tray, char *label)
 {
-    for (size_t i = 0; i < parent->num_menus; i++)
+    for (size_t i = 0; i < tray->num_menus; i++)
     {
-        GtkWidget *menu_item = g_array_index(parent->menus, GtkWidget *, i);
-        const char *menu_label = gtk_menu_item_get_label(GTK_MENU_ITEM(menu_item));
-        if (strcmp(menu_label, label) == 0)
+        GtkMenuItem *menu_item = GTK_MENU_ITEM(tray->menus[i]);
+        if (strcmp(gtk_menu_item_get_label(menu_item), label) == 0)
         {
-            return GTK_MENU(gtk_menu_item_get_submenu(GTK_MENU_ITEM(menu_item)));
+            return menu_item;
         }
     }
-    fprintf(stderr, "get_menu_by_label: menu item with label '%s' not found\n", label);
     return NULL;
 }
 
@@ -164,6 +166,17 @@ void vtray_exit(struct VTray *tray)
     // Deallocate memory, destroy the indicator, etc.
     if (tray)
     {
+        if (tray->menus)
+        {
+            // Deallocate memory for individual menu items in the flexible array
+            for (int i = 0; i < tray->num_menus; i++)
+            {
+                if (tray->menus[i] != NULL)
+                {
+                    gtk_widget_destroy(tray->menus[i]);
+                }
+            }
+        }
         if (tray->indicator)
             g_object_unref(tray->indicator);
         free(tray);

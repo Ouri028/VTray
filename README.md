@@ -27,6 +27,8 @@ sudo apt-get install pkg-config
 
 For MacOS the tray icon size must be 22x22 pixels in order for it to render correctly.
 
+I have only tested this using GCC, so I am not sure if it will work with other compilers.
+
 ## Example
 
 ```v
