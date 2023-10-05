@@ -143,7 +143,6 @@ void vtray_construct(struct VTray *parent)
     parent->menu = CreatePopupMenu();
     if (parent->menu)
     {
-
         for (size_t i = 0; i < parent->num_items; i++)
         {
             struct VTrayMenuItem *item = parent->items[i];
@@ -153,21 +152,23 @@ void vtray_construct(struct VTray *parent)
             menuItem.fMask = MIIM_ID | MIIM_TYPE | MIIM_STATE;
             menuItem.wID = item->id;
             menuItem.fMask |= MIIM_BITMAP;
-            // TODO: Add menu icon support.
-            //            if (item->image != NULL) {
-            //
-            //                menuItem.hbmpItem = LoadBitmapA(parent->hInstance, item->image);
-            //            }
+            UINT flags = MF_STRING;
 
+            // Set the checkable and disabled states based on struct properties
             if (item->checkable)
             {
-                menuItem.fState = item->checked ? MFS_CHECKED : MFS_UNCHECKED;
+                if (item->checked)
+                {
+                    flags |= MFS_CHECKED;
+                }
             }
             if (item->disabled)
             {
-                menuItem.fState |= MFS_DISABLED;
+                flags |= (item->disabled ? MF_GRAYED : 0);
+                flags |= MFS_DISABLED;
             }
-            if (!AppendMenu(parent->menu, MF_STRING | (item->checkable ? MF_CHECKED : 0) | (item->disabled ? MF_GRAYED : 0), item->id, (LPCSTR)string_to_wchar_t(item->text)))
+
+            if (!AppendMenu(parent->menu, flags, item->id, (LPCSTR)string_to_wchar_t(item->text)))
             {
                 fprintf(stderr, "Failed to add menu item\n");
                 exit(1);
@@ -207,13 +208,12 @@ void vtray_update_menu_item(struct VTray *tray, int menu_id, bool checked)
         return NULL;
     }
 
-    if (!item->checkable)
+    if (item->checkable)
     {
-        tray->on_click(item);
-        return NULL;
+        menuItemInfo.fState = (checked ? MFS_CHECKED : MFS_UNCHECKED);
+        item->checked = checked ? 1 : 0;
     }
-    menuItemInfo.fState = (checked ? MFS_CHECKED : MFS_UNCHECKED);
-    item->checked = checked ? true : false;
+
     SetMenuItemInfo(tray->menu, menu_id, FALSE, &menuItemInfo);
     tray->on_click(item);
 }
