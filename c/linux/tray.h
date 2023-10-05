@@ -19,7 +19,7 @@ struct VTray
     struct VTrayMenuItem **items;
     size_t num_items;
     size_t num_menus;
-    GtkMenuItem *menus[];
+    GtkMenuItem **menus;
 };
 
 struct VTrayParams
