@@ -7,7 +7,9 @@ $if windows {
 	#flag @VMODROOT/c/windows/tray.c
 	#include "@VMODROOT/c/windows/tray.h"
 } $else $if linux {
+	#flag -I @VMODROOT/c/linux/utils.h
 	#flag -I @VMODROOT/c/vtray.h
+	#flag @VMODROOT/c/linux/utils.c
 	#flag @VMODROOT/c/linux/tray.c
 	#include "@VMODROOT/c/linux/tray.h"
 } $else $if macos {

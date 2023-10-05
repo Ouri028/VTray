@@ -1,6 +1,6 @@
-module example
+module main
 
-import vtray
+import ouri028.vtray
 
 enum MenuItems {
 	edit = 1
@@ -11,9 +11,9 @@ fn main() {
 	mut systray := &vtray.VTrayApp{
 		identifier: 'VTray!'
 		tooltip: 'VTray Demo!'
-		icon: if macos {
+		icon: $if macos {
 			'${@VMODROOT}/assets/icon.png'
-		} else {
+		} $else {
 			'${@VMODROOT}/assets/icon.ico'
 		}
 		items: [
