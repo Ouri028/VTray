@@ -154,18 +154,13 @@ void vtray_construct(struct VTray *parent)
             menuItem.fMask |= MIIM_BITMAP;
             UINT flags = MF_STRING;
 
-            // Set the checkable and disabled states based on struct properties
+            // Set the checkable state based on struct properties
             if (item->checkable)
             {
                 if (item->checked)
                 {
                     flags |= MFS_CHECKED;
                 }
-            }
-            if (item->disabled)
-            {
-                flags |= (item->disabled ? MF_GRAYED : 0);
-                flags |= MFS_DISABLED;
             }
 
             if (!AppendMenu(parent->menu, flags, item->id, (LPCSTR)string_to_wchar_t(item->text)))
@@ -186,6 +181,7 @@ BOOL is_menu_item_checked(HMENU menu, UINT menuId)
 
     if (GetMenuItemInfo(menu, menuId, FALSE, &menuItemInfo))
     {
+        printf("%d\n", (menuItemInfo.fState & MFS_CHECKED) != 0);
         return (menuItemInfo.fState & MFS_CHECKED) != 0;
     }
 

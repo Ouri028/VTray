@@ -19,7 +19,6 @@ pub mut:
 	id        int
 	text      string
 	checked   bool
-	disabled  bool
 	checkable bool
 }
 
