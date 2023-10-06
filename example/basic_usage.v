@@ -27,7 +27,7 @@ fn main() {
 			&vtray.VTrayMenuItem{
 				id: int(MenuItems.copy)
 				text: 'Copy'
-				checkable: true
+				disabled: true
 			},
 			&vtray.VTrayMenuItem{
 				id: int(MenuItems.quit)
