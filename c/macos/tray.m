@@ -97,6 +97,7 @@ static NSString *string_to_nsstring(string str)
                                        action:@selector(onAction:)
                                 keyEquivalent:@""];
     NSValue *representedObject = [NSValue valueWithPointer:(menuItems[i])];
+
     if(menuItems[i]->disabled) {
         [item setEnabled:NO];
     } else {
@@ -112,7 +113,6 @@ static NSString *string_to_nsstring(string str)
     [item setRepresentedObject:representedObject];
     [item setTarget:self];
     [item autorelease];
-    [item setEnabled:YES];
   }
 
   return menu;
