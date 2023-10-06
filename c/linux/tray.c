@@ -81,6 +81,7 @@ void vtray_construct(struct VTray *parent)
         {
             struct VTrayMenuItem *item = parent->items[i];
             GtkMenuItem *menu_item;
+
             if (item->checkable)
             {
                 size_t len = parent->num_menus;

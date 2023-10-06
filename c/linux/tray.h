@@ -35,7 +35,6 @@ struct VTrayMenuItem
     int id;
     String text;
     bool checked;
-    bool disabled;
     bool checkable;
 };
 
