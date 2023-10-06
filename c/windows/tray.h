@@ -30,6 +30,7 @@ struct VTrayMenuItem
     String text;
     bool checked;
     bool checkable;
+    bool disabled;
 };
 
 struct VTray

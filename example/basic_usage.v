@@ -4,22 +4,30 @@ import ouri028.vtray
 
 enum MenuItems {
 	edit = 1
-	quit = 2
+	copy = 2
+	quit = 3
 }
 
 fn main() {
+	icon := $if macos {
+		'${@VMODROOT}/assets/icon.png'
+	} $else {
+		'${@VMODROOT}/assets/icon.ico'
+	}
 	mut systray := &vtray.VTrayApp{
 		identifier: 'VTray!'
 		tooltip: 'VTray Demo!'
-		icon: $if macos {
-			'${@VMODROOT}/assets/icon.png'
-		} $else {
-			'${@VMODROOT}/assets/icon.ico'
-		}
+		icon: icon
 		items: [
 			&vtray.VTrayMenuItem{
 				id: int(MenuItems.edit)
 				text: 'Edit'
+				checkable: true
+			},
+			&vtray.VTrayMenuItem{
+				id: int(MenuItems.copy)
+				text: 'Copy'
+				checkable: true
 			},
 			&vtray.VTrayMenuItem{
 				id: int(MenuItems.quit)
@@ -27,16 +35,8 @@ fn main() {
 			},
 		]
 	}
-	on_click := fn [systray] (menu_id int) {
-		match menu_id {
-			int(MenuItems.edit) {
-				println('EDIT!')
-			}
-			int(MenuItems.quit) {
-				systray.destroy()
-			}
-			else {}
-		}
+	on_click := fn [systray] (mut menu_item vtray.VTrayMenuItem) {
+		println(menu_item)
 	}
 	systray.on_click = on_click
 	systray.vtray_init()

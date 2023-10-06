@@ -20,6 +20,7 @@ pub mut:
 	text      string
 	checked   bool
 	checkable bool
+	disabled  bool
 }
 
 // For MacOS the tray icon size must be 22x22 pixels in order for it to render correctly.

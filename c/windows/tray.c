@@ -163,6 +163,11 @@ void vtray_construct(struct VTray *parent)
                 }
             }
 
+            if (item->disabled)
+            {
+                flags |= MFS_DISABLED;
+            }
+
             if (!AppendMenu(parent->menu, flags, item->id, (LPCSTR)string_to_wchar_t(item->text)))
             {
                 fprintf(stderr, "Failed to add menu item\n");
