@@ -11,7 +11,8 @@ VTray is a cross-platform V library to place an icon and menu in the notificatio
 - [x] Supported on Windows
 - [x] Supported on Linux
 - [x] Supported on MacOS
-- [ ] Menu items can be checked and/or disabled
+- [x] Menu items can be checked/unchecked
+- [x] Menu items can be enabled/disabled
 - [ ] Allow menus to have their own icons
 - [ ] Allow submenus within menus
 
@@ -27,6 +28,8 @@ sudo apt-get install pkg-config
 
 For MacOS the tray icon size must be 22x22 pixels in order for it to render correctly.
 
+I have only tested this using GCC, so I am not sure if it will work with other compilers.
+
 ## Example
 
 ```v
@@ -36,48 +39,47 @@ import ouri028.vtray
 
 enum MenuItems {
 	edit = 1
-	quit = 2
-}
-
-struct App {
-	pub mut:
-	tray vtray.VTrayApp
+	copy = 2
+	quit = 3
 }
 
 fn main() {
-	mut app := App{
-		tray: vtray.VTrayApp{
-			identifier: 'VTray!'
-			tooltip: 'VTray Demo!'
-			icon: '${@VMODROOT}/assets/icon.ico'
-			items: [
-				&vtray.VTrayMenuItem{
-					id: int(MenuItems.edit)
-					text: 'Edit'
-				},
-				&vtray.VTrayMenuItem{
-					id: int(MenuItems.quit)
-					text: 'Quit'
-				},
-			]
+	icon := $if macos {
+		'${@VMODROOT}/assets/icon.png'
+	} $else {
+		'${@VMODROOT}/assets/icon.ico'
+	}
+	mut systray := &vtray.VTrayApp{
+		identifier: 'VTray!'
+		tooltip: 'VTray Demo!'
+		icon: icon
+		items: [
+			&vtray.VTrayMenuItem{
+				id: int(MenuItems.edit)
+				text: 'Edit'
+				checkable: true
+			},
+			&vtray.VTrayMenuItem{
+				id: int(MenuItems.copy)
+				text: 'Copy'
+				disabled: true
+			},
+			&vtray.VTrayMenuItem{
+				id: int(MenuItems.quit)
+				text: 'Quit'
+			},
+		]
+	}
+	on_click := fn [systray] (mut menu_item vtray.VTrayMenuItem) {
+		println(menu_item)
+		if menu_item.id == int(MenuItems.quit) {
+			systray.destroy()
 		}
 	}
-	app.tray.on_click = app.on_click
-	app.tray.vtray_init()
-	app.tray.run()
-	app.tray.destroy()
-}
-
-fn (app &App) on_click(menu_id int) {
-	match menu_id {
-		int(MenuItems.edit) {
-			println('EDIT!')
-		}
-		int(MenuItems.quit) {
-			app.tray.destroy()
-		}
-		else {}
-	}
+	systray.on_click = on_click
+	systray.vtray_init()
+	systray.run()
+	systray.destroy()
 }
 ```
 

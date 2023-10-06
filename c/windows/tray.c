@@ -31,7 +31,6 @@ LRESULT CALLBACK vtray_wndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam
             int menuId = LOWORD(wParam);
             BOOL checked = is_menu_item_checked(tray->menu, menuId);
             vtray_update_menu_item(tray, menuId, !checked);
-            tray->on_click(menuId);
         }
         break;
 
@@ -46,7 +45,7 @@ LRESULT CALLBACK vtray_wndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam
     return 0;
 }
 
-struct VTray *vtray_init_windows(VTrayParamsWindows *params, size_t num_items, struct MenuItemWindows *items[])
+struct VTray *vtray_init(VTrayParams *params, size_t num_items, struct VTrayMenuItem *items[])
 {
     struct VTray *tray = (struct VTray *)malloc(sizeof(struct VTray));
     if (!tray)
@@ -58,10 +57,10 @@ struct VTray *vtray_init_windows(VTrayParamsWindows *params, size_t num_items, s
     // Initialize other members of the struct
     memset(tray, 0, sizeof(struct VTray));
 
-    strncpy(tray->identifier, params->identifier, sizeof(tray->identifier));
+    strncpy(tray->identifier, string_to_char(params->identifier), sizeof(tray->identifier));
     // Initialize window class
     memset(&tray->windowClass, 0, sizeof(WNDCLASSEX));
-    tray->tooltip = params->tooltip;
+    tray->tooltip = string_to_wchar_t(params->tooltip);
     tray->windowClass.cbSize = sizeof(WNDCLASSEX);
     tray->windowClass.lpfnWndProc = vtray_wndProc;
     tray->windowClass.hInstance = tray->hInstance;
@@ -94,13 +93,14 @@ struct VTray *vtray_init_windows(VTrayParamsWindows *params, size_t num_items, s
 
     // Initialize the NOTIFYICONDATA structure
     tray->notifyData.cbSize = sizeof(NOTIFYICONDATA);
-    wcscpy((wchar_t *)tray->notifyData.szTip, tray->tooltip);
+    wchar_t *tooltip = string_to_wchar_t(params->tooltip);
+    wcscpy((wchar_t *)tray->notifyData.szTip, tooltip);
     tray->notifyData.hWnd = tray->hwnd;
     tray->notifyData.uID = ID_TRAYICON;
     tray->notifyData.uFlags = NIF_ICON | NIF_MESSAGE | NIF_TIP;
     tray->notifyData.uCallbackMessage = WM_TRAYICON;
     tray->hInstance = GetModuleHandle(NULL);
-    tray->notifyData.hIcon = LoadImageA(tray->hInstance, params->icon, IMAGE_ICON, 0, 0,
+    tray->notifyData.hIcon = LoadImageA(tray->hInstance, string_to_char(params->icon), IMAGE_ICON, 0, 0,
                                         LR_LOADFROMFILE | LR_DEFAULTSIZE);
     vtray_construct(tray);
     tray->on_click = params->on_click;
@@ -113,7 +113,7 @@ struct VTray *vtray_init_windows(VTrayParamsWindows *params, size_t num_items, s
     return tray;
 }
 
-void vtray_exit_windows(struct VTray *tray)
+void vtray_exit(struct VTray *tray)
 {
     // Deallocate memory, destroy windows, etc.
 
@@ -131,7 +131,7 @@ void vtray_exit_windows(struct VTray *tray)
     }
 }
 
-void vtray_update_windows(struct VTray *tray)
+void vtray_update(struct VTray *tray)
 {
     // Update the system tray icon and menu as needed.
     tray->notifyData.hWnd = tray->hwnd;
@@ -143,31 +143,32 @@ void vtray_construct(struct VTray *parent)
     parent->menu = CreatePopupMenu();
     if (parent->menu)
     {
-
         for (size_t i = 0; i < parent->num_items; i++)
         {
-            struct MenuItemWindows *item = parent->items[i];
+            struct VTrayMenuItem *item = parent->items[i];
             MENUITEMINFO menuItem;
             memset(&menuItem, 0, sizeof(MENUITEMINFO));
             menuItem.cbSize = sizeof(MENUITEMINFO);
             menuItem.fMask = MIIM_ID | MIIM_TYPE | MIIM_STATE;
             menuItem.wID = item->id;
             menuItem.fMask |= MIIM_BITMAP;
-            // TODO: Add menu icon support.
-            //            if (item->image != NULL) {
-            //
-            //                menuItem.hbmpItem = LoadBitmapA(parent->hInstance, item->image);
-            //            }
+            UINT flags = MF_STRING;
 
+            // Set the checkable state based on struct properties
             if (item->checkable)
             {
-                menuItem.fState = item->checked ? MFS_CHECKED : MFS_UNCHECKED;
+                if (item->checked)
+                {
+                    flags |= MFS_CHECKED;
+                }
             }
+
             if (item->disabled)
             {
-                menuItem.fState |= MFS_DISABLED;
+                flags |= MFS_DISABLED;
             }
-            if (!AppendMenu(parent->menu, MF_STRING | (item->checkable ? MF_CHECKED : 0) | (item->disabled ? MF_GRAYED : 0), item->id, (LPCSTR)item->text))
+
+            if (!AppendMenu(parent->menu, flags, item->id, (LPCSTR)string_to_wchar_t(item->text)))
             {
                 fprintf(stderr, "Failed to add menu item\n");
                 exit(1);
@@ -185,6 +186,7 @@ BOOL is_menu_item_checked(HMENU menu, UINT menuId)
 
     if (GetMenuItemInfo(menu, menuId, FALSE, &menuItemInfo))
     {
+        printf("%d\n", (menuItemInfo.fState & MFS_CHECKED) != 0);
         return (menuItemInfo.fState & MFS_CHECKED) != 0;
     }
 
@@ -200,19 +202,21 @@ void vtray_update_menu_item(struct VTray *tray, int menu_id, bool checked)
         return;
     }
     menuItemInfo.fMask = MIIM_STATE;
-    MenuItemWindows *item = get_vmenu_item_by_id(menu_id, tray);
+    VTrayMenuItem *item = get_vmenu_item_by_id(menu_id, tray);
     if (item == NULL)
     {
         fprintf(stderr, "Failed to find menu item with ID %d\n", menu_id);
         return NULL;
     }
 
-    if (!item->checkable)
+    if (item->checkable)
     {
-        return NULL;
+        menuItemInfo.fState = (checked ? MFS_CHECKED : MFS_UNCHECKED);
+        item->checked = checked ? 1 : 0;
     }
-    menuItemInfo.fState = (checked ? MFS_CHECKED : MFS_UNCHECKED);
+
     SetMenuItemInfo(tray->menu, menu_id, FALSE, &menuItemInfo);
+    tray->on_click(item);
 }
 
 MENUITEMINFO get_menu_item_by_id(HMENU menu, UINT menu_id)
@@ -237,7 +241,7 @@ MENUITEMINFO get_menu_item_by_id(HMENU menu, UINT menu_id)
     return menuItemInfo;
 }
 
-MenuItemWindows *get_vmenu_item_by_id(int menu_id, struct VTray *tray)
+VTrayMenuItem *get_vmenu_item_by_id(int menu_id, struct VTray *tray)
 {
     for (size_t i = 0; i < tray->num_items; i++)
     {
@@ -246,16 +250,16 @@ MenuItemWindows *get_vmenu_item_by_id(int menu_id, struct VTray *tray)
             return tray->items[i];
         }
     }
-    return (MenuItemWindows *){0};
+    return (VTrayMenuItem *){0};
 }
 
-void vtray_run_windows(struct VTray *tray)
+void vtray_run(struct VTray *tray)
 {
     // Show and run your Windows application loop here.
     ShowWindow(tray->hwnd, SW_HIDE);
 
     // Update the system tray icon
-    vtray_update_windows(tray);
+    vtray_update(tray);
 
     MSG msg;
     while (GetMessage(&msg, NULL, 0, 0))

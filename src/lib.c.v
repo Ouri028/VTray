@@ -1,13 +1,15 @@
 module vtray
 
-import builtin.wchar
-
 $if windows {
+	#flag -I @VMODROOT/c/windows/utils.h
 	#flag -I @VMODROOT/c/vtray.h
+	#flag @VMODROOT/c/windows/utils.c
 	#flag @VMODROOT/c/windows/tray.c
 	#include "@VMODROOT/c/windows/tray.h"
 } $else $if linux {
+	#flag -I @VMODROOT/c/linux/utils.h
 	#flag -I @VMODROOT/c/vtray.h
+	#flag @VMODROOT/c/linux/utils.c
 	#flag @VMODROOT/c/linux/tray.c
 	#include "@VMODROOT/c/linux/tray.h"
 } $else $if macos {
@@ -28,67 +30,14 @@ struct VTray {
 	ptr_delegate voidptr
 }
 
-// we need to use primitive types for C
-struct MenuItemWindows {
-pub mut:
-	id        int
-	text      &wchar.Character
-	checked   bool
-	disabled  bool
-	checkable bool
-	// TODO: Add menu item icons.
-	// image    &char
-}
-
-struct MenuItemLinux {
-mut:
-	id   int
-	text &char
-	// TODO: Add menu item icons.
-	// image    &char
-}
-
-struct MenuItemMac {
-mut:
-	id   int
-	text &char
-	// TODO: Add menu item icons.
-	// image    &char
-}
-
 // Parameters to configure the tray button.
-struct VTrayParamsWindows {
-	identifier &char
-	tooltip    &wchar.Character
-	icon       &char
-	on_click   fn (menu_id int) = unsafe { nil }
+struct VTrayParams {
+	identifier string
+	tooltip    string
+	icon       string
+	on_click   fn (menu_item &VTrayMenuItem) = unsafe { nil }
 }
 
-struct VTrayParamsLinux {
-	identifier &char
-	tooltip    &char
-	icon       &char
-	on_click   fn (menu_id int) = unsafe { nil }
-}
-
-struct VTrayParamsMac {
-	identifier &char
-	tooltip    &char
-	icon       &char
-	on_click   fn (menu_id int) = unsafe { nil }
-}
-
-// Windows
-fn C.vtray_init_windows(params &VTrayParamsWindows, num_items usize, items []&MenuItemWindows) &VTray
-fn C.vtray_run_windows(tray &VTray)
-fn C.vtray_exit_windows(tray &VTray)
-
-// Linux
-fn C.vtray_init_linux(params &VTrayParamsLinux, num_items usize, items []&MenuItemLinux) &VTray
-fn C.vtray_run_linux(tray &VTray)
-fn C.vtray_exit_linux(tray &VTray)
-
-// MacOS
-fn C.vtray_init_mac(params &VTrayParamsMac, num_items usize, items []&MenuItemMac) &VTray
-fn C.vtray_run_mac(tray &VTray)
-fn C.vtray_exit_mac(tray &VTray)
+fn C.vtray_init(params &VTrayParams, num_items usize, items []&VTrayMenuItem) &VTray
+fn C.vtray_run(tray &VTray)
+fn C.vtray_exit(tray &VTray)
