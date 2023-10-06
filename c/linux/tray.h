@@ -36,6 +36,7 @@ struct VTrayMenuItem
     String text;
     bool checked;
     bool checkable;
+    bool disabled;
 };
 
 struct VTray *vtray_init(VTrayParams *params, size_t num_items, struct VTrayMenuItem *items[]);

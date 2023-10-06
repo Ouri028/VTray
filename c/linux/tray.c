@@ -99,6 +99,10 @@ void vtray_construct(struct VTray *parent)
                 parent->menus[len] = menu_item;
                 parent->num_menus++;
             }
+            if (item->disabled)
+            {
+                gtk_widget_set_sensitive(GTK_WIDGET(menu_item), FALSE);
+            }
             gtk_menu_shell_append(GTK_MENU_SHELL(parent->menu), menu_item);
             gtk_widget_show(menu_item);
         }

@@ -206,7 +206,7 @@ void vtray_update_menu_item(struct VTray *tray, int menu_id, bool checked)
     if (item == NULL)
     {
         fprintf(stderr, "Failed to find menu item with ID %d\n", menu_id);
-        return NULL;
+        return;
     }
 
     if (item->checkable)
