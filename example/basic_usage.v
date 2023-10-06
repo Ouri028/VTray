@@ -37,6 +37,9 @@ fn main() {
 	}
 	on_click := fn [systray] (mut menu_item vtray.VTrayMenuItem) {
 		println(menu_item)
+		if menu_item.id == int(MenuItems.quit) {
+			systray.destroy()
+		}
 	}
 	systray.on_click = on_click
 	systray.vtray_init()
