@@ -76,6 +76,7 @@ static NSString *string_to_nsstring(string str)
 }
 
 - (NSMenu *)buildMenu {
+  NSLog(@"Building menu");
   NSMenu *menu = [NSMenu new];
   [menu autorelease];
   [menu setAutoenablesItems:NO];
@@ -86,6 +87,19 @@ static NSString *string_to_nsstring(string str)
                                        action:@selector(onAction:)
                                 keyEquivalent:@""];
     NSValue *representedObject = [NSValue valueWithPointer:(menuItems[i])];
+    if(menuItems[i]->disabled) {
+        [item setEnabled:NO];
+    } else {
+        [item setEnabled:YES];
+    }
+
+    if(menuItems[i]->checkable) {
+        [item setTarget:self];
+        NSLog(@"%d", menuItems[i]->checked);
+        if(menuItems[i]->checked) {
+            [item setState: NSOnState];
+        }
+    }
     [item setRepresentedObject:representedObject];
     [item setTarget:self];
     [item autorelease];
