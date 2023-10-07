@@ -178,7 +178,8 @@ void vtray_exit(vtray__VTray *tray) {
 
 void vtray_set_icon(char* icon, vtray__VTray *tray) {
   NSImage *image = [[NSImage alloc] initWithContentsOfFile:[NSString stringWithUTF8String:icon]];
-
+    NSStatusItem *statusItem = [tray->ptr_delegate getStatusItem];
+    statusItem.button.image = image;
 }
 
 void vtray_set_tooltip(char* tooltip, vtray__VTray *tray) {
