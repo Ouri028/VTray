@@ -8,28 +8,22 @@ fn main() {
 	} $else {
 		'${@VMODROOT}/assets/icon.ico'
 	}
-	mut systray := &vtray.VTrayApp{
-		identifier: 'VTray!'
-		tooltip: 'VTray Demo!'
-		icon: icon
-	}
-	systray.items = [
-		&vtray.VTrayMenuItem{
-			text: 'Edit'
-			checkable: true
-		},
-		&vtray.VTrayMenuItem{
-			text: 'Copy'
-			disabled: true
-		},
-		&vtray.VTrayMenuItem{
-			text: 'Quit'
-			on_click: fn [systray] () {
-				systray.destroy()
-			}
-		},
-	]
-	systray.vtray_init()
-	systray.run()
-	systray.destroy()
+	mut tray := vtray.create(icon, tooltip: 'VTray Demo!')
+	tray.add_item(vtray.MenuItem{
+		text: 'Edit'
+		checkable: true
+	})
+	tray.add_item(vtray.MenuItem{
+		text: 'Copy'
+		disabled: true
+	})
+	tray.add_item(vtray.MenuItem{
+		text: 'Quit'
+		on_click: fn [tray] () {
+			tray.destroy()
+		}
+	})
+	tray.init()
+	tray.run()
+	tray.destroy()
 }
