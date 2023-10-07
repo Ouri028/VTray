@@ -53,6 +53,26 @@ pub fn (mut t Tray) add_item(text string, opts MenuItemOptions) {
 	}
 }
 
+// set_icon sets the tray icon.
+pub fn (t &Tray) set_icon(icon string) {
+	C.vtray_set_icon(icon.str, t.instance)
+}
+
+// set_tooltip sets the tray tooltip.
+pub fn (t &Tray) set_tooltip(tooltip string) {
+	C.vtray_set_tooltip(tooltip.str, t.instance)
+}
+
+// get_item returns the menu item with the given text.
+pub fn (t &Tray) get_item(item string) ?&MenuItem {
+	for menu_item in t.items {
+		if menu_item.text == item {
+			return menu_item
+		}
+	}
+	return none
+}
+
 // run runs the tray app.
 pub fn (mut t Tray) run() {
 	t.instance = C.vtray_init(&VTrayParams{

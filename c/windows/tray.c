@@ -252,6 +252,20 @@ MenuItem *get_vmenu_item_by_id(int menu_id, struct VTray *tray)
     return (MenuItem *){0};
 }
 
+void vtray_set_icon(char *icon, struct VTray *tray)
+{
+    tray->notifyData.hIcon = LoadImageA(tray->hInstance, icon, IMAGE_ICON, 0, 0,
+                                        LR_LOADFROMFILE | LR_DEFAULTSIZE);
+    Shell_NotifyIcon(NIM_MODIFY, &tray->notifyData);
+}
+
+void vtray_set_tooltip(char *tooltip, struct VTray *tray)
+{
+    tray->notifyData.cbSize = sizeof(NOTIFYICONDATA);
+    wcscpy((wchar_t *)tray->notifyData.szTip, char_to_wchar_t(tooltip));
+    Shell_NotifyIcon(NIM_MODIFY, &tray->notifyData);
+}
+
 void vtray_run(struct VTray *tray)
 {
     // Show and run your Windows application loop here.

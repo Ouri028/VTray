@@ -75,25 +75,33 @@ fn main() {
 ```v
 module vtray
 
-struct MenuItem {
-pub mut:
-	text      string
-	checked   bool
-	checkable bool
-	disabled  bool
+fn create(icon_path string, opts CreatOptions) &Tray
+struct MenuItemOptions {
+        checked   bool
+        checkable bool
+        disabled  bool
+        on_click  ?fn ()
 }
 struct Tray {
 mut:
-	tray &VTray = unsafe { nil }
-pub mut:
-	identifier string
-	tooltip    string
-	icon       string
-	items      []&MenuItem
+        instance   &VTray = unsafe { nil }
+        icon       string
+        identifier string
+        tooltip    string
+        items      []&MenuItem
+        callbacks  map[int]fn ()
+        last_id    int = 1
 }
-fn (mut v Tray) vtray_init()
-fn (v &Tray) run()
-fn (v &Tray) destroy()
+fn (mut t Tray) add_item(text string, opts MenuItemOptions)
+fn (t &Tray) set_icon(icon string)
+fn (t &Tray) set_tooltip(tooltip string)
+fn (t &Tray) get_item(item string) ?&MenuItem
+fn (mut t Tray) run()
+fn (t &Tray) destroy()
+struct CreatOptions {
+        identifier string = 'VTray'
+        tooltip    string
+}
 ```
 
 ## License
