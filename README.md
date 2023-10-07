@@ -103,7 +103,7 @@ Module {
 
 ![image3.png](assets%2Fimage3.png)
 
-![image6.png](assets%2image6.png)
+![image6.png](assets%2Fimage6.png)
 
 ### Linux
 
