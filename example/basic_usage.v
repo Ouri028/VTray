@@ -23,7 +23,6 @@ fn main() {
 			tray.destroy()
 		}
 	})
-	tray.init()
 	tray.run()
 	tray.destroy()
 }

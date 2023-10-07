@@ -31,20 +31,6 @@ pub mut:
 	on_click  ?fn ()
 }
 
-// For MacOS the tray icon size must be 22x22 pixels in order for it to render correctly.
-pub fn (mut t Tray) init() {
-	t.instance = C.vtray_init(&VTrayParams{
-		identifier: t.identifier
-		tooltip: t.tooltip
-		icon: t.icon
-		on_click: fn [t] (menu_item &MenuItem) {
-			if cb := t.callbacks[menu_item.id] {
-				cb()
-			}
-		}
-	}, usize(t.items.len), t.items.data)
-}
-
 // create Create a Tray.
 pub fn create(icon_path string, opts CreatOptions) &Tray {
 	return &Tray{
@@ -66,7 +52,17 @@ pub fn (mut t Tray) add_item(item MenuItem) {
 }
 
 // run Run the tray app.
-pub fn (t &Tray) run() {
+pub fn (mut t Tray) run() {
+	t.instance = C.vtray_init(&VTrayParams{
+		identifier: t.identifier
+		tooltip: t.tooltip
+		icon: t.icon
+		on_click: fn [t] (menu_item &MenuItem) {
+			if cb := t.callbacks[menu_item.id] {
+				cb()
+			}
+		}
+	}, usize(t.items.len), t.items.data)
 	C.vtray_run(t.instance)
 }
 
