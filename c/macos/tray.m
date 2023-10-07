@@ -141,6 +141,10 @@ static NSString *string_to_nsstring(string str)
   return NSTerminateNow;
 }
 
+- (NSStatusItem *)getStatusItem {
+  return self->statusItem;
+}
+
 @end
 
 // Initializes NSApplication and NSStatusItem, aka system tray menu item.
@@ -178,7 +182,8 @@ void vtray_set_icon(char* icon, vtray__VTray *tray) {
 }
 
 void vtray_set_tooltip(char* tooltip, vtray__VTray *tray) {
-
+  NSStatusItem *statusItem = [tray->ptr_delegate getStatusItem];
+  [statusItem setToolTip:char_to_nsstring(tooltip)];
 }
 
 #endif
