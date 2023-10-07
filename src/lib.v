@@ -10,28 +10,41 @@ pub mut:
 	tooltip    string
 	icon       string
 	items      []&VTrayMenuItem
-	on_click   fn (menu_item &VTrayMenuItem) = unsafe { nil }
 }
 
 // VTrayMenuItem is a menu item that can be added to the tray.
 pub struct VTrayMenuItem {
+mut:
+	id int
 pub mut:
-	id        int
 	text      string
 	checked   bool
 	checkable bool
 	disabled  bool
+	on_click  ?fn ()
 }
 
 // For MacOS the tray icon size must be 22x22 pixels in order for it to render correctly.
 pub fn (mut v VTrayApp) vtray_init() {
-	tray := C.vtray_init(&VTrayParams{
+	mut callbacks := map[int]fn (){}
+	mut id := 1
+	for mut item in v.items {
+		item.id = id
+		if cb := item.on_click {
+			callbacks[id] = cb
+		}
+		id++
+	}
+	v.tray = C.vtray_init(&VTrayParams{
 		identifier: v.identifier
 		tooltip: v.tooltip
 		icon: v.icon
-		on_click: v.on_click
+		on_click: fn [callbacks] (menu_item &VTrayMenuItem) {
+			if cb := callbacks[menu_item.id] {
+				cb()
+			}
+		}
 	}, usize(v.items.len), v.items.data)
-	v.tray = tray
 }
 
 // run Run the tray app.
