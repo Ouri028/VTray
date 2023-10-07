@@ -1,19 +1,25 @@
 module vtray
 
-// VTrayApp is the main struct that represents the tray app.
-[heap]
-pub struct VTrayApp {
+// Tray is the main struct that represents the tray app.
+[noinit]
+pub struct Tray {
 mut:
-	tray &VTray = unsafe { nil }
-pub mut:
+	icon       string
 	identifier string
 	tooltip    string
-	icon       string
-	items      []&VTrayMenuItem
+	tray       &VTray = unsafe { nil }
+	items      []&MenuItem
+	callbacks  map[int]fn ()
 }
 
-// VTrayMenuItem is a menu item that can be added to the tray.
-pub struct VTrayMenuItem {
+[params]
+pub struct CreatOptions {
+	identifier string = 'VTray'
+	tooltip    string
+}
+
+// MenuItem is a menu item that can be added to the tray.
+pub struct MenuItem {
 mut:
 	id int
 pub mut:
@@ -25,7 +31,7 @@ pub mut:
 }
 
 // For MacOS the tray icon size must be 22x22 pixels in order for it to render correctly.
-pub fn (mut v VTrayApp) vtray_init() {
+pub fn (mut v Tray) init() {
 	mut callbacks := map[int]fn (){}
 	mut id := 1
 	for mut item in v.items {
@@ -39,7 +45,7 @@ pub fn (mut v VTrayApp) vtray_init() {
 		identifier: v.identifier
 		tooltip: v.tooltip
 		icon: v.icon
-		on_click: fn [callbacks] (menu_item &VTrayMenuItem) {
+		on_click: fn [callbacks] (menu_item &MenuItem) {
 			if cb := callbacks[menu_item.id] {
 				cb()
 			}
@@ -47,12 +53,25 @@ pub fn (mut v VTrayApp) vtray_init() {
 	}, usize(v.items.len), v.items.data)
 }
 
+// create Create a Tray.
+pub fn create(icon_path string, opts CreatOptions) &Tray {
+	return &Tray{
+		icon: icon_path
+		identifier: opts.identifier
+		tooltip: opts.tooltip
+	}
+}
+
+pub fn (mut t Tray) add_item(item &MenuItem) {
+	t.items << item
+}
+
 // run Run the tray app.
-pub fn (v &VTrayApp) run() {
+pub fn (v &Tray) run() {
 	C.vtray_run(v.tray)
 }
 
 // destroy Destroy the tray app and free the memory.
-pub fn (v &VTrayApp) destroy() {
+pub fn (v &Tray) destroy() {
 	C.vtray_exit(v.tray)
 }
