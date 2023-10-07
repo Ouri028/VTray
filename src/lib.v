@@ -4,12 +4,13 @@ module vtray
 [noinit]
 pub struct Tray {
 mut:
+	instance   &VTray = unsafe { nil }
 	icon       string
 	identifier string
 	tooltip    string
-	tray       &VTray = unsafe { nil }
 	items      []&MenuItem
 	callbacks  map[int]fn ()
+	last_id    int
 }
 
 [params]
@@ -31,26 +32,17 @@ pub mut:
 }
 
 // For MacOS the tray icon size must be 22x22 pixels in order for it to render correctly.
-pub fn (mut v Tray) init() {
-	mut callbacks := map[int]fn (){}
-	mut id := 1
-	for mut item in v.items {
-		item.id = id
-		if cb := item.on_click {
-			callbacks[id] = cb
-		}
-		id++
-	}
-	v.tray = C.vtray_init(&VTrayParams{
-		identifier: v.identifier
-		tooltip: v.tooltip
-		icon: v.icon
-		on_click: fn [callbacks] (menu_item &MenuItem) {
-			if cb := callbacks[menu_item.id] {
+pub fn (mut t Tray) init() {
+	t.instance = C.vtray_init(&VTrayParams{
+		identifier: t.identifier
+		tooltip: t.tooltip
+		icon: t.icon
+		on_click: fn [t] (menu_item &MenuItem) {
+			if cb := t.callbacks[menu_item.id] {
 				cb()
 			}
 		}
-	}, usize(v.items.len), v.items.data)
+	}, usize(t.items.len), t.items.data)
 }
 
 // create Create a Tray.
@@ -62,16 +54,23 @@ pub fn create(icon_path string, opts CreatOptions) &Tray {
 	}
 }
 
-pub fn (mut t Tray) add_item(item &MenuItem) {
-	t.items << item
+pub fn (mut t Tray) add_item(item MenuItem) {
+	id := t.last_id++
+	t.items << &MenuItem{
+		...item
+		id: id
+	}
+	if cb := item.on_click {
+		t.callbacks[id] = cb
+	}
 }
 
 // run Run the tray app.
-pub fn (v &Tray) run() {
-	C.vtray_run(v.tray)
+pub fn (t &Tray) run() {
+	C.vtray_run(t.instance)
 }
 
 // destroy Destroy the tray app and free the memory.
-pub fn (v &Tray) destroy() {
-	C.vtray_exit(v.tray)
+pub fn (t &Tray) destroy() {
+	C.vtray_exit(t.instance)
 }
