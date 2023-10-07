@@ -170,39 +170,8 @@ void vtray_construct(struct VTray *parent)
 
             if (!string_empty(item->icon))
             {
-                HICON hIcon = (HICON)LoadImageA(parent->hInstance, string_to_char(item->icon), IMAGE_ICON, 0, 0,
-                                                LR_LOADFROMFILE | LR_DEFAULTSIZE);
-                ICONINFO iconinfo;
-                GetIconInfo(hIcon, &iconinfo);
-                HBITMAP hBitmap = iconinfo.hbmColor;
-
-                if (hBitmap == NULL)
-                {
-                    fprintf(stderr, "Failed to load bitmap: %s\n", string_to_char(item->icon));
-                    exit(1);
-                }
-                else
-                {
-                    menuItem.fMask |= MIIM_BITMAP;
-                    menuItem.hbmpItem = hBitmap;
-                }
-            }
-
-            HICON hIcon = (HICON)LoadImageA(parent->hInstance, string_to_char(item->icon), IMAGE_ICON, 0, 0,
-                                            LR_LOADFROMFILE | LR_DEFAULTSIZE);
-            ICONINFO iconinfo;
-            GetIconInfo(hIcon, &iconinfo);
-            HBITMAP hBitmap = iconinfo.hbmColor;
-
-            if (hBitmap == NULL)
-            {
-                fprintf(stderr, "Failed to load bitmap: %s\n", string_to_char(item->icon));
-                exit(1);
-            }
-            else
-            {
                 menuItem.fMask |= MIIM_BITMAP;
-                menuItem.hbmpItem = hBitmap;
+                menuItem.hbmpItem = icon_to_bitmap(parent->hInstance, string_to_char(item->icon));
             }
 
             if (!AppendMenu(parent->menu, flags, item->id, (LPCSTR)string_to_wchar_t(item->text)))
@@ -303,6 +272,68 @@ void vtray_run(struct VTray *tray)
         TranslateMessage(&msg);
         DispatchMessage(&msg);
     }
+}
+
+HBITMAP icon_to_bitmap(HINSTANCE instance, char *icon)
+{
+    HICON hIcon = LoadImageA(instance, icon, IMAGE_ICON, 0, 0,
+                             LR_LOADFROMFILE | LR_DEFAULTSIZE);
+
+    HDC hDC = GetDC(NULL);
+    if (hDC == NULL)
+    {
+        return NULL;
+    }
+
+    HDC hMemDC = CreateCompatibleDC(hDC);
+    if (hMemDC == NULL)
+    {
+        ReleaseDC(NULL, hDC);
+        return NULL;
+    }
+
+    int cx = GetSystemMetrics(SM_CXSMICON);
+    int cy = GetSystemMetrics(SM_CYSMICON);
+
+    HBITMAP hMemBmp = CreateCompatibleBitmap(hDC, cx, cy);
+    if (hMemBmp == NULL)
+    {
+        DeleteDC(hMemDC);
+        ReleaseDC(NULL, hDC);
+        return NULL;
+    }
+
+    HBITMAP hOriginalBmp = SelectObject(hMemDC, hMemBmp);
+
+    BOOL res = DrawIconEx(hMemDC, 0, 0, hIcon, cx, cy, 0, NULL, DI_NORMAL);
+
+    if (res == 0)
+    {
+        DeleteObject(hMemBmp);
+        DeleteDC(hMemDC);
+        ReleaseDC(NULL, hDC);
+        return NULL;
+    }
+
+    SelectObject(hMemDC, hOriginalBmp);
+    DeleteDC(hMemDC);
+    ReleaseDC(NULL, hDC);
+
+    return hMemBmp;
+}
+
+void vtray_set_icon(char *icon, struct VTray *tray)
+{
+    tray->notifyData.hIcon = LoadImageA(tray->hInstance, icon, IMAGE_ICON, 0, 0,
+                                        LR_LOADFROMFILE | LR_DEFAULTSIZE);
+    Shell_NotifyIcon(NIM_MODIFY, &tray->notifyData);
+}
+
+void vtray_set_tooltip(char *tooltip, struct VTray *tray)
+{
+    tray->notifyData.cbSize = sizeof(NOTIFYICONDATA);
+    wcscpy((wchar_t *)tray->notifyData.szTip, char_to_wchar_t(tooltip));
+    Shell_NotifyIcon(NIM_MODIFY, &tray->notifyData);
 }
 
 #endif

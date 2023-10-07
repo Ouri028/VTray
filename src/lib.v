@@ -44,3 +44,11 @@ pub fn (v &VTrayApp) run() {
 pub fn (v &VTrayApp) destroy() {
 	C.vtray_exit(v.tray)
 }
+
+pub fn (v &VTrayApp) set_icon(icon string) {
+	C.vtray_set_icon(icon.str, v.tray)
+}
+
+pub fn (v &VTrayApp) set_tooltip(tooltip string) {
+	C.vtray_set_tooltip(tooltip.str, v.tray)
+}

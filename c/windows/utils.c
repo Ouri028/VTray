@@ -10,15 +10,14 @@ char *string_to_char(String string)
     return string.str;
 }
 
-size_t len(String string)
+int len(String string)
 {
     return string.len;
 }
 
 bool string_empty(String string)
 {
-    size_t len = strlen(string_to_char(string));
-    if (len == 0)
+    if (len(string) == 0)
     {
         return true;
     }
@@ -49,4 +48,5 @@ wchar_t *string_to_wchar_t(String string)
     char *c = string_to_char(string);
     return char_to_wchar_t(c);
 }
+
 #endif

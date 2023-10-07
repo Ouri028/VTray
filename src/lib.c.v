@@ -5,6 +5,7 @@ $if windows {
 	#flag -I @VMODROOT/c/vtray.h
 	#flag @VMODROOT/c/windows/utils.c
 	#flag @VMODROOT/c/windows/tray.c
+	#flag -lgdi32 -luser32
 	#include "@VMODROOT/c/windows/tray.h"
 } $else $if linux {
 	#flag -I @VMODROOT/c/linux/utils.h
@@ -41,3 +42,5 @@ struct VTrayParams {
 fn C.vtray_init(params &VTrayParams, num_items usize, items []&VTrayMenuItem) &VTray
 fn C.vtray_run(tray &VTray)
 fn C.vtray_exit(tray &VTray)
+fn C.vtray_set_icon(icon &char, tray &VTray)
+fn C.vtray_set_tooltip(tooltip &char, tray &VTray)

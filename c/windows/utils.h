@@ -11,11 +11,11 @@ typedef struct String String;
 struct String
 {
     char *str;
-    size_t len;
+    int len;
 };
 
 char *string_to_char(String string);
-size_t len(String string);
+int len(String string);
 bool string_empty(String string);
 wchar_t *char_to_wchar_t(char *c);
 wchar_t *string_to_wchar_t(String string);

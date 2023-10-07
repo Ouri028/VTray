@@ -58,7 +58,9 @@ void vtray_construct(struct VTray *parent);
 
 void vtray_update_menu_item(struct VTray *tray, int menu_id, bool checked);
 
-// BOOL is_menu_item_disabled(HMENU menu, UINT menuId);
+void vtray_set_icon(char *icon, struct VTray *tray);
+
+void vtray_set_tooltip(char *tooltip, struct VTray *tray);
 
 BOOL is_menu_item_checked(HMENU menu, UINT menuId);
 
@@ -67,5 +69,7 @@ MENUITEMINFO get_menu_item_by_id(HMENU menu, UINT menu_id);
 VTrayMenuItem *get_vmenu_item_by_id(int menu_id, struct VTray *tray);
 
 void vtray_run(struct VTray *tray);
+
+HBITMAP icon_to_bitmap(HINSTANCE instance, char *icon);
 
 #endif
