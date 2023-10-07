@@ -28,6 +28,7 @@ struct VTrayMenuItem
 {
     int id;
     String text;
+    String icon;
     bool checked;
     bool checkable;
     bool disabled;

@@ -18,6 +18,7 @@ pub struct VTrayMenuItem {
 pub mut:
 	id        int
 	text      string
+	icon      string
 	checked   bool
 	checkable bool
 	disabled  bool

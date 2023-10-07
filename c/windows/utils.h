@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <tchar.h>
 #include <locale.h>
+#include <stdbool.h>
 
 typedef struct String String;
 
@@ -15,6 +16,7 @@ struct String
 
 char *string_to_char(String string);
 size_t len(String string);
+bool string_empty(String string);
 wchar_t *char_to_wchar_t(char *c);
 wchar_t *string_to_wchar_t(String string);
 #endif

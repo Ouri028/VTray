@@ -15,6 +15,16 @@ size_t len(String string)
     return string.len;
 }
 
+bool string_empty(String string)
+{
+    size_t len = strlen(string_to_char(string));
+    if (len == 0)
+    {
+        return true;
+    }
+    return false;
+}
+
 wchar_t *char_to_wchar_t(char *c)
 {
     if (c == NULL)
@@ -22,14 +32,15 @@ wchar_t *char_to_wchar_t(char *c)
         perror("char_to_wchar_t: string is NULL");
         return NULL;
     }
-    size_t len = mbstowcs(NULL, c, 0) + 1;
+    size_t len = strlen(c) + 1;
     wchar_t *w = malloc(len * sizeof(wchar_t));
     if (w == NULL)
     {
         perror("char_to_wchar_t: failed to allocate memory");
         return NULL;
     }
-    mbstowcs(w, c, len);
+    size_t converted = 0;
+    mbstowcs_s(&converted, w, len, c, _TRUNCATE);
     return w;
 }
 

@@ -168,6 +168,43 @@ void vtray_construct(struct VTray *parent)
                 flags |= MFS_DISABLED;
             }
 
+            if (!string_empty(item->icon))
+            {
+                HICON hIcon = (HICON)LoadImageA(parent->hInstance, string_to_char(item->icon), IMAGE_ICON, 0, 0,
+                                                LR_LOADFROMFILE | LR_DEFAULTSIZE);
+                ICONINFO iconinfo;
+                GetIconInfo(hIcon, &iconinfo);
+                HBITMAP hBitmap = iconinfo.hbmColor;
+
+                if (hBitmap == NULL)
+                {
+                    fprintf(stderr, "Failed to load bitmap: %s\n", string_to_char(item->icon));
+                    exit(1);
+                }
+                else
+                {
+                    menuItem.fMask |= MIIM_BITMAP;
+                    menuItem.hbmpItem = hBitmap;
+                }
+            }
+
+            HICON hIcon = (HICON)LoadImageA(parent->hInstance, string_to_char(item->icon), IMAGE_ICON, 0, 0,
+                                            LR_LOADFROMFILE | LR_DEFAULTSIZE);
+            ICONINFO iconinfo;
+            GetIconInfo(hIcon, &iconinfo);
+            HBITMAP hBitmap = iconinfo.hbmColor;
+
+            if (hBitmap == NULL)
+            {
+                fprintf(stderr, "Failed to load bitmap: %s\n", string_to_char(item->icon));
+                exit(1);
+            }
+            else
+            {
+                menuItem.fMask |= MIIM_BITMAP;
+                menuItem.hbmpItem = hBitmap;
+            }
+
             if (!AppendMenu(parent->menu, flags, item->id, (LPCSTR)string_to_wchar_t(item->text)))
             {
                 fprintf(stderr, "Failed to add menu item\n");
