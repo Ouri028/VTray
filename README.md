@@ -37,12 +37,6 @@ module main
 
 import ouri028.vtray
 
-enum MenuItems {
-	edit = 1
-	copy = 2
-	quit = 3
-}
-
 fn main() {
 	icon := $if macos {
 		'${@VMODROOT}/assets/icon.png'
@@ -53,30 +47,23 @@ fn main() {
 		identifier: 'VTray!'
 		tooltip: 'VTray Demo!'
 		icon: icon
-		items: [
-			&vtray.VTrayMenuItem{
-				id: int(MenuItems.edit)
-				text: 'Edit'
-				checkable: true
-			},
-			&vtray.VTrayMenuItem{
-				id: int(MenuItems.copy)
-				text: 'Copy'
-				disabled: true
-			},
-			&vtray.VTrayMenuItem{
-				id: int(MenuItems.quit)
-				text: 'Quit'
-			},
-		]
 	}
-	on_click := fn [systray] (mut menu_item vtray.VTrayMenuItem) {
-		println(menu_item)
-		if menu_item.id == int(MenuItems.quit) {
-			systray.destroy()
-		}
-	}
-	systray.on_click = on_click
+	systray.items = [
+		&vtray.VTrayMenuItem{
+			text: 'Edit'
+			checkable: true
+		},
+		&vtray.VTrayMenuItem{
+			text: 'Copy'
+			disabled: true
+		},
+		&vtray.VTrayMenuItem{
+			text: 'Quit'
+			on_click: fn [systray] () {
+				systray.destroy()
+			}
+		},
+	]
 	systray.vtray_init()
 	systray.run()
 	systray.destroy()
@@ -113,28 +100,26 @@ Module {
 
 ![image5.png](assets%2Fimage5.png)
 
-### Struct Definitions
+### Definitions
 
 ```v
 module vtray
 
 struct VTrayMenuItem {
 pub mut:
-        id        int
-        text      string
-        checked   bool
-        checkable bool
-        disabled  bool
+	text      string
+	checked   bool
+	checkable bool
+	disabled  bool
 }
 struct VTrayApp {
 mut:
-        tray &VTray = unsafe { nil }
+	tray &VTray = unsafe { nil }
 pub mut:
-        identifier string
-        tooltip    string
-        icon       string
-        items      []&VTrayMenuItem
-        on_click   fn (menu_item &VTrayMenuItem) = unsafe { nil }
+	identifier string
+	tooltip    string
+	icon       string
+	items      []&VTrayMenuItem
 }
 fn (mut v VTrayApp) vtray_init()
 fn (v &VTrayApp) run()
