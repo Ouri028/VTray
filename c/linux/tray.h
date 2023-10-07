@@ -49,6 +49,10 @@ void vtray_update(struct VTray *tray);
 
 void vtray_construct(struct VTray *parent);
 
+void vtray_set_icon(char *icon, struct VTray *tray);
+
+void vtray_set_tooltip(char *tooltip, struct VTray *tray);
+
 void vtray_update_menu_item(struct VTray *tray, int menu_id);
 
 GtkMenuItem *get_menu_item_by_label(struct VTray *tray, char *label);

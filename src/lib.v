@@ -65,12 +65,7 @@ pub fn (t &Tray) set_tooltip(tooltip string) {
 
 // get_item returns the menu item with the given text.
 pub fn (t &Tray) get_item(item string) ?&MenuItem {
-	for menu_item in t.items {
-		if menu_item.text == item {
-			return menu_item
-		}
-	}
-	return none
+	return t.items.filter(it.text == item)[0] or { return none }
 }
 
 // run runs the tray app.

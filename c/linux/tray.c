@@ -42,14 +42,21 @@ struct VTray *vtray_init(VTrayParams *params, size_t num_items, struct MenuItem 
     }
 
     gtk_init(NULL, NULL);
-
+    tray->menu = gtk_menu_new();
     tray->indicator = app_indicator_new(string_to_char(params->identifier), string_to_char(params->icon), APP_INDICATOR_CATEGORY_APPLICATION_STATUS);
+
     // Set the tooltip text for the indicator
     app_indicator_set_title(tray->indicator, string_to_char(params->tooltip));
+    app_indicator_set_label(tray->indicator, string_to_char(params->tooltip), "");
     app_indicator_set_status(tray->indicator, APP_INDICATOR_STATUS_ACTIVE);
     app_indicator_set_attention_icon_full(tray->indicator, string_to_char(params->identifier), "New messages");
-    app_indicator_set_menu(tray->indicator, GTK_MENU(tray->menu));
+    if (!GTK_IS_MENU(tray->menu))
+    {
+        fprintf(stderr, "Invalid menu instance!\n");
+        return NULL;
+    }
 
+    app_indicator_set_menu(tray->indicator, GTK_MENU(tray->menu));
     tray->on_click = params->on_click;
     tray->items = items;
     tray->num_items = num_items;
@@ -71,8 +78,6 @@ void *get_global_vtray()
 
 void vtray_construct(struct VTray *parent)
 {
-    parent->menu = gtk_menu_new();
-
     if (parent->menu)
     {
         parent->num_menus = 0;
@@ -164,6 +169,18 @@ MenuItem *get_vmenu_item_by_id(int menu_id, struct VTray *tray)
         }
     }
     return (MenuItem *){0};
+}
+
+void vtray_set_icon(char *icon, struct VTray *tray)
+{
+    // Update the icon
+    app_indicator_set_icon_full(tray->indicator, icon, "");
+    app_indicator_set_attention_icon_full(tray->indicator, icon, "");
+}
+// Set the tooltip for the system tray icon
+void vtray_set_tooltip(char *tooltip, struct VTray *tray)
+{
+    app_indicator_set_title(tray->indicator, tooltip);
 }
 
 void vtray_exit(struct VTray *tray)
