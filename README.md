@@ -112,3 +112,31 @@ Module {
 ### MacOS
 
 ![image5.png](assets%2Fimage5.png)
+
+### Struct Definitions
+
+```v
+module vtray
+
+struct VTrayMenuItem {
+pub mut:
+        id        int
+        text      string
+        checked   bool
+        checkable bool
+        disabled  bool
+}
+struct VTrayApp {
+mut:
+        tray &VTray = unsafe { nil }
+pub mut:
+        identifier string
+        tooltip    string
+        icon       string
+        items      []&VTrayMenuItem
+        on_click   fn (menu_item &VTrayMenuItem) = unsafe { nil }
+}
+fn (mut v VTrayApp) vtray_init()
+fn (v &VTrayApp) run()
+fn (v &VTrayApp) destroy()
+```
