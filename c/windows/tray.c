@@ -186,7 +186,6 @@ BOOL is_menu_item_checked(HMENU menu, UINT menuId)
 
     if (GetMenuItemInfo(menu, menuId, FALSE, &menuItemInfo))
     {
-        printf("%d\n", (menuItemInfo.fState & MFS_CHECKED) != 0);
         return (menuItemInfo.fState & MFS_CHECKED) != 0;
     }
 
