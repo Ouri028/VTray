@@ -2,47 +2,16 @@ module main
 
 import ouri028.vtray
 
-enum MenuItems {
-	edit = 1
-	copy = 2
-	quit = 3
-}
-
 fn main() {
 	icon := $if macos {
 		'${@VMODROOT}/assets/icon.png'
 	} $else {
 		'${@VMODROOT}/assets/icon.ico'
 	}
-	mut systray := &vtray.VTrayApp{
-		identifier: 'VTray!'
-		tooltip: 'VTray Demo!'
-		icon: icon
-		items: [
-			&vtray.VTrayMenuItem{
-				id: int(MenuItems.edit)
-				text: 'Edit'
-				checkable: true
-			},
-			&vtray.VTrayMenuItem{
-				id: int(MenuItems.copy)
-				text: 'Copy'
-				disabled: true
-			},
-			&vtray.VTrayMenuItem{
-				id: int(MenuItems.quit)
-				text: 'Quit'
-			},
-		]
-	}
-	on_click := fn [systray] (mut menu_item vtray.VTrayMenuItem) {
-		println(menu_item)
-		if menu_item.id == int(MenuItems.quit) {
-			systray.destroy()
-		}
-	}
-	systray.on_click = on_click
-	systray.vtray_init()
-	systray.run()
-	systray.destroy()
+	mut tray := vtray.create(icon, tooltip: 'VTray Demo!')
+	tray.add_item('Edit', checkable: true)
+	tray.add_item('Copy', disabled: true)
+	tray.add_item('Quit', on_click: tray.destroy)
+	tray.run()
+	tray.destroy()
 }

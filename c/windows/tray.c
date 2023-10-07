@@ -45,7 +45,7 @@ LRESULT CALLBACK vtray_wndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam
     return 0;
 }
 
-struct VTray *vtray_init(VTrayParams *params, size_t num_items, struct VTrayMenuItem *items[])
+struct VTray *vtray_init(VTrayParams *params, size_t num_items, struct MenuItem *items[])
 {
     struct VTray *tray = (struct VTray *)malloc(sizeof(struct VTray));
     if (!tray)
@@ -145,7 +145,7 @@ void vtray_construct(struct VTray *parent)
     {
         for (size_t i = 0; i < parent->num_items; i++)
         {
-            struct VTrayMenuItem *item = parent->items[i];
+            struct MenuItem *item = parent->items[i];
             MENUITEMINFO menuItem;
             memset(&menuItem, 0, sizeof(MENUITEMINFO));
             menuItem.cbSize = sizeof(MENUITEMINFO);
@@ -201,7 +201,7 @@ void vtray_update_menu_item(struct VTray *tray, int menu_id, bool checked)
         return;
     }
     menuItemInfo.fMask = MIIM_STATE;
-    VTrayMenuItem *item = get_vmenu_item_by_id(menu_id, tray);
+    MenuItem *item = get_vmenu_item_by_id(menu_id, tray);
     if (item == NULL)
     {
         fprintf(stderr, "Failed to find menu item with ID %d\n", menu_id);
@@ -240,7 +240,7 @@ MENUITEMINFO get_menu_item_by_id(HMENU menu, UINT menu_id)
     return menuItemInfo;
 }
 
-VTrayMenuItem *get_vmenu_item_by_id(int menu_id, struct VTray *tray)
+MenuItem *get_vmenu_item_by_id(int menu_id, struct VTray *tray)
 {
     for (size_t i = 0; i < tray->num_items; i++)
     {
@@ -249,7 +249,7 @@ VTrayMenuItem *get_vmenu_item_by_id(int menu_id, struct VTray *tray)
             return tray->items[i];
         }
     }
-    return (VTrayMenuItem *){0};
+    return (MenuItem *){0};
 }
 
 void vtray_run(struct VTray *tray)

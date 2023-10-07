@@ -37,61 +37,18 @@ module main
 
 import ouri028.vtray
 
-enum MenuItems {
-	edit = 1
-	copy = 2
-	quit = 3
-}
-
 fn main() {
 	icon := $if macos {
 		'${@VMODROOT}/assets/icon.png'
 	} $else {
 		'${@VMODROOT}/assets/icon.ico'
 	}
-	mut systray := &vtray.VTrayApp{
-		identifier: 'VTray!'
-		tooltip: 'VTray Demo!'
-		icon: icon
-		items: [
-			&vtray.VTrayMenuItem{
-				id: int(MenuItems.edit)
-				text: 'Edit'
-				checkable: true
-			},
-			&vtray.VTrayMenuItem{
-				id: int(MenuItems.copy)
-				text: 'Copy'
-				disabled: true
-			},
-			&vtray.VTrayMenuItem{
-				id: int(MenuItems.quit)
-				text: 'Quit'
-			},
-		]
-	}
-	on_click := fn [systray] (mut menu_item vtray.VTrayMenuItem) {
-		println(menu_item)
-		if menu_item.id == int(MenuItems.quit) {
-			systray.destroy()
-		}
-	}
-	systray.on_click = on_click
-	systray.vtray_init()
-	systray.run()
-	systray.destroy()
-}
-```
-
-Edit v.mod
-
-```v
-Module {
-	name: 'myapp'
-	description: ''
-	version: '0.0.1'
-	license: 'MIT'
-	dependencies: ['ouri028.vtray']
+	mut tray := vtray.create(icon, tooltip: 'VTray Demo!')
+	tray.add_item('Edit', checkable: true)
+	tray.add_item('Copy', disabled: true)
+	tray.add_item('Quit', on_click: tray.destroy)
+	tray.run()
+	tray.destroy()
 }
 ```
 
@@ -113,32 +70,30 @@ Module {
 
 ![image5.png](assets%2Fimage5.png)
 
-## Struct Definitions
+## Definitions
 
 ```v
 module vtray
 
-struct VTrayMenuItem {
+struct MenuItem {
 pub mut:
-        id        int
-        text      string
-        checked   bool
-        checkable bool
-        disabled  bool
+	text      string
+	checked   bool
+	checkable bool
+	disabled  bool
 }
-struct VTrayApp {
+struct Tray {
 mut:
-        tray &VTray = unsafe { nil }
+	tray &VTray = unsafe { nil }
 pub mut:
-        identifier string
-        tooltip    string
-        icon       string
-        items      []&VTrayMenuItem
-        on_click   fn (menu_item &VTrayMenuItem) = unsafe { nil }
+	identifier string
+	tooltip    string
+	icon       string
+	items      []&MenuItem
 }
-fn (mut v VTrayApp) vtray_init()
-fn (v &VTrayApp) run()
-fn (v &VTrayApp) destroy()
+fn (mut v Tray) vtray_init()
+fn (v &Tray) run()
+fn (v &Tray) destroy()
 ```
 
 ## License

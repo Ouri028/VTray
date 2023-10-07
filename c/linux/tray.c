@@ -5,7 +5,7 @@ void *GLOBAL_TRAY = NULL;
 
 static void on_menu_item_clicked(GtkMenuItem *menu_item, gpointer user_data)
 {
-    struct VTrayMenuItem *item = (struct VTrayMenuItem *)user_data;
+    struct MenuItem *item = (struct MenuItem *)user_data;
     struct VTray *tray = (struct VTray *)get_global_vtray();
     if (tray != NULL)
     {
@@ -19,7 +19,7 @@ static void on_menu_item_clicked(GtkMenuItem *menu_item, gpointer user_data)
 
 static void on_toggle_menu_item_clicked(GtkCheckMenuItem *menu_item, gpointer user_data)
 {
-    struct VTrayMenuItem *item = (struct VTrayMenuItem *)user_data;
+    struct MenuItem *item = (struct MenuItem *)user_data;
     struct VTray *tray = (struct VTray *)get_global_vtray();
     if (tray != NULL)
     {
@@ -31,7 +31,7 @@ static void on_toggle_menu_item_clicked(GtkCheckMenuItem *menu_item, gpointer us
     }
 }
 
-struct VTray *vtray_init(VTrayParams *params, size_t num_items, struct VTrayMenuItem *items[])
+struct VTray *vtray_init(VTrayParams *params, size_t num_items, struct MenuItem *items[])
 {
     struct VTray *tray = (struct VTray *)malloc(sizeof(struct VTray));
     if (!tray)
@@ -79,7 +79,7 @@ void vtray_construct(struct VTray *parent)
 
         for (size_t i = 0; i < parent->num_items; i++)
         {
-            struct VTrayMenuItem *item = parent->items[i];
+            struct MenuItem *item = parent->items[i];
             GtkMenuItem *menu_item;
 
             if (item->checkable)
@@ -114,7 +114,7 @@ void vtray_construct(struct VTray *parent)
 
 void vtray_update_menu_item(struct VTray *tray, int menu_id)
 {
-    VTrayMenuItem *item = get_vmenu_item_by_id(menu_id, tray);
+    MenuItem *item = get_vmenu_item_by_id(menu_id, tray);
     GtkMenuItem *menu_item = get_menu_item_by_label(tray, string_to_char(item->text));
     if (item == NULL)
     {
@@ -154,7 +154,7 @@ GtkMenuItem *get_menu_item_by_label(struct VTray *tray, char *label)
     return NULL;
 }
 
-VTrayMenuItem *get_vmenu_item_by_id(int menu_id, struct VTray *tray)
+MenuItem *get_vmenu_item_by_id(int menu_id, struct VTray *tray)
 {
     for (size_t i = 0; i < tray->num_items; i++)
     {
@@ -163,7 +163,7 @@ VTrayMenuItem *get_vmenu_item_by_id(int menu_id, struct VTray *tray)
             return tray->items[i];
         }
     }
-    return (VTrayMenuItem *){0};
+    return (MenuItem *){0};
 }
 
 void vtray_exit(struct VTray *tray)

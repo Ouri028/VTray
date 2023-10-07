@@ -47,13 +47,13 @@ static NSString *string_to_nsstring(string str)
   NSStatusItem *statusItem;    // our button
   int num_items;
   vtray__VTrayParams *trayParams; // VTrayParams is defined in tray.v
-  vtray__VTrayMenuItem **menuItems;
+  vtray__MenuItem **menuItems;
 }
 @end
 
 @implementation AppDelegate
 - (AppDelegate *)initWithParams:(vtray__VTrayParams *)params
-                        itemsArray:(vtray__VTrayMenuItem *[])itemsArray
+                        itemsArray:(vtray__MenuItem *[])itemsArray
                     numItems:(int)numItems {
   if (self = [super init]) {
     trayParams = params;
@@ -69,8 +69,8 @@ static NSString *string_to_nsstring(string str)
 // Called when NSMenuItem is clicked.
 - (void)onAction:(id)sender {
   NSMenuItem *menuItem = (NSMenuItem *)sender;
-  struct vtray__VTrayMenuItem *item =
-      (struct vtray__VTrayMenuItem *)[[sender representedObject] pointerValue];
+  struct vtray__MenuItem *item =
+      (struct vtray__MenuItem *)[[sender representedObject] pointerValue];
 
   if (item && item->checkable) {
     item->checked = !item->checked; // Toggle the checked state
@@ -144,7 +144,7 @@ static NSString *string_to_nsstring(string str)
 @end
 
 // Initializes NSApplication and NSStatusItem, aka system tray menu item.
-vtray__VTray *vtray_init(vtray__VTrayParams *params, int numItems, vtray__VTrayMenuItem *itemsArray[]) {
+vtray__VTray *vtray_init(vtray__VTrayParams *params, int numItems, vtray__MenuItem *itemsArray[]) {
   NSApplication *app = [NSApplication sharedApplication];
   AppDelegate *appDelegate = [[AppDelegate alloc] initWithParams:params itemsArray:itemsArray numItems:numItems];
 

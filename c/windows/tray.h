@@ -12,9 +12,9 @@
 #define ID_TRAYICON 100
 
 typedef struct VTrayParams VTrayParams;
-typedef struct VTrayMenuItem VTrayMenuItem;
+typedef struct MenuItem MenuItem;
 
-typedef void (*CallbackFunction)(VTrayMenuItem *menu_item);
+typedef void (*CallbackFunction)(MenuItem *menu_item);
 
 struct VTrayParams
 {
@@ -24,7 +24,7 @@ struct VTrayParams
     CallbackFunction on_click;
 };
 
-struct VTrayMenuItem
+struct MenuItem
 {
     int id;
     String text;
@@ -43,11 +43,11 @@ struct VTray
     HWND hwnd;
     wchar_t *tooltip;
     CallbackFunction on_click;
-    struct VTrayMenuItem **items;
+    struct MenuItem **items;
     size_t num_items;
 };
 
-struct VTray *vtray_init(VTrayParams *params, size_t num_items, struct VTrayMenuItem *items[]);
+struct VTray *vtray_init(VTrayParams *params, size_t num_items, struct MenuItem *items[]);
 
 void vtray_exit(struct VTray *tray);
 
@@ -63,7 +63,7 @@ BOOL is_menu_item_checked(HMENU menu, UINT menuId);
 
 MENUITEMINFO get_menu_item_by_id(HMENU menu, UINT menu_id);
 
-VTrayMenuItem *get_vmenu_item_by_id(int menu_id, struct VTray *tray);
+MenuItem *get_vmenu_item_by_id(int menu_id, struct VTray *tray);
 
 void vtray_run(struct VTray *tray);
 
