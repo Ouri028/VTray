@@ -59,8 +59,6 @@ static NSString *string_to_nsstring(string str)
     trayParams = params;
     num_items = numItems;
     menuItems = itemsArray;
-
-
   }
   return self;
 }
@@ -123,7 +121,9 @@ static NSString *string_to_nsstring(string str)
   statusItem = [statusBar statusItemWithLength:NSSquareStatusItemLength];
   [statusItem retain];
   [statusItem setVisible:YES];
+  [statusItem setToolTip:string_to_nsstring(trayParams->tooltip)];
   NSStatusBarButton *statusBarButton = [statusItem button];
+
   // Height must be 22px.
     NSImage *img = [[NSImage alloc] initWithContentsOfFile:string_to_nsstring(trayParams->icon)];
   if (img == nil) {
@@ -170,6 +170,15 @@ void vtray_run(vtray__VTray *tray) {
 void vtray_exit(vtray__VTray *tray) {
   NSApplication *app = (NSApplication *)(tray->ptr);
   [app terminate:app];
+}
+
+void vtray_set_icon(char* icon, vtray__VTray *tray) {
+  NSImage *image = [[NSImage alloc] initWithContentsOfFile:[NSString stringWithUTF8String:icon]];
+
+}
+
+void vtray_set_tooltip(char* tooltip, vtray__VTray *tray) {
+
 }
 
 #endif
