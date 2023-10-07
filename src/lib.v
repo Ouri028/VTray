@@ -31,7 +31,8 @@ pub mut:
 	on_click  ?fn ()
 }
 
-// create Create a Tray.
+// create creates the tray.
+// On macOS, the tray icon size must be 22x22 pixels to be rendered correctly.
 pub fn create(icon_path string, opts CreatOptions) &Tray {
 	return &Tray{
 		icon: icon_path
@@ -40,6 +41,7 @@ pub fn create(icon_path string, opts CreatOptions) &Tray {
 	}
 }
 
+// add_item adds an item to the tray.
 pub fn (mut t Tray) add_item(item MenuItem) {
 	id := t.last_id++
 	t.items << &MenuItem{
@@ -51,7 +53,7 @@ pub fn (mut t Tray) add_item(item MenuItem) {
 	}
 }
 
-// run Run the tray app.
+// run runs the tray app.
 pub fn (mut t Tray) run() {
 	t.instance = C.vtray_init(&VTrayParams{
 		identifier: t.identifier
@@ -66,7 +68,7 @@ pub fn (mut t Tray) run() {
 	C.vtray_run(t.instance)
 }
 
-// destroy Destroy the tray app and free the memory.
+// destroy destroys the tray app and frees allocated memory.
 pub fn (t &Tray) destroy() {
 	C.vtray_exit(t.instance)
 }
