@@ -10,7 +10,7 @@ mut:
 	tooltip    string
 	items      []&MenuItem
 	callbacks  map[int]fn ()
-	last_id    int
+	last_id    int = 1
 }
 
 [params]
