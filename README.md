@@ -44,35 +44,11 @@ fn main() {
 		'${@VMODROOT}/assets/icon.ico'
 	}
 	mut tray := vtray.create(icon, tooltip: 'VTray Demo!')
-	tray.add_item(vtray.MenuItem{
-		text: 'Edit'
-		checkable: true
-	})
-	tray.add_item(vtray.MenuItem{
-		text: 'Copy'
-		disabled: true
-	})
-	tray.add_item(vtray.MenuItem{
-		text: 'Quit'
-		on_click: fn [tray] () {
-			tray.destroy()
-		}
-	})
-	tray.init()
+	tray.add_item('Edit', checkable: true)
+	tray.add_item('Copy', disabled: true)
+	tray.add_item('Quit', on_click: tray.destroy)
 	tray.run()
 	tray.destroy()
-}
-```
-
-Edit v.mod
-
-```v
-Module {
-	name: 'myapp'
-	description: ''
-	version: '0.0.1'
-	license: 'MIT'
-	dependencies: ['ouri028.vtray']
 }
 ```
 

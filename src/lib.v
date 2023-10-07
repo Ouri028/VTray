@@ -1,7 +1,7 @@
 module vtray
 
 // Tray is the main struct that represents the tray app.
-[noinit]
+[heap; noinit]
 pub struct Tray {
 mut:
 	instance   &VTray = unsafe { nil }
@@ -20,11 +20,8 @@ pub struct CreatOptions {
 }
 
 // MenuItem is a menu item that can be added to the tray.
-pub struct MenuItem {
-mut:
-	id int
-pub mut:
-	text      string
+[params]
+pub struct MenuItemOptions {
 	checked   bool
 	checkable bool
 	disabled  bool
@@ -42,13 +39,16 @@ pub fn create(icon_path string, opts CreatOptions) &Tray {
 }
 
 // add_item adds an item to the tray.
-pub fn (mut t Tray) add_item(item MenuItem) {
+pub fn (mut t Tray) add_item(text string, opts MenuItemOptions) {
 	id := t.last_id++
 	t.items << &MenuItem{
-		...item
 		id: id
+		text: text
+		checked: opts.checked
+		checkable: opts.checkable
+		disabled: opts.disabled
 	}
-	if cb := item.on_click {
+	if cb := opts.on_click {
 		t.callbacks[id] = cb
 	}
 }
