@@ -113,7 +113,7 @@ Module {
 
 ![image5.png](assets%2Fimage5.png)
 
-### Struct Definitions
+## Struct Definitions
 
 ```v
 module vtray
@@ -141,7 +141,7 @@ fn (v &VTrayApp) run()
 fn (v &VTrayApp) destroy()
 ```
 
-### License
+## License
 
 MIT License
 
