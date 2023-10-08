@@ -70,43 +70,7 @@ fn main() {
 
 ![image5.png](assets%2Fimage5.png)
 
-## Definitions
-
-```v
-module vtray
-
-fn create(icon_path string, opts CreatOptions) &Tray
-struct MenuItemOptions {
-        checked   bool
-        checkable bool
-        disabled  bool
-        on_click  ?fn ()
-}
-struct Tray {
-mut:
-        instance   &VTray = unsafe { nil }
-        icon       string
-        identifier string
-        tooltip    string
-        items      []&MenuItem
-        callbacks  map[int]fn ()
-        last_id    int = 1
-}
-fn (mut t Tray) add_item(text string, opts MenuItemOptions)
-fn (t &Tray) set_icon(icon string)
-fn (t &Tray) set_tooltip(tooltip string)
-fn (t &Tray) get_item(item string) ?&MenuItem
-fn (mut t Tray) run()
-fn (t &Tray) destroy()
-struct CreatOptions {
-        identifier string = 'VTray'
-        tooltip    string
-}
-```
-
 ## License
-
-MIT License
 
 ```text
 MIT License
