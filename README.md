@@ -1,5 +1,8 @@
 # VTray
 
+> **NOTE**
+> This library is still in development and is not ready for production use.
+
 VTray is a cross-platform V library to place an icon and menu in the notification area.
 
 ## Features
@@ -17,6 +20,9 @@ VTray is a cross-platform V library to place an icon and menu in the notificatio
 - [x] Dynamically update tooltip
 - [ ] Allow menus to have their own icons
 - [ ] Allow submenus within menus
+
+> **NOTE**
+> Struct definitions and functions can be found [here](https://ouri028.github.io/VTray/vtray.html)
 
 ## Requirements
 
