@@ -41,7 +41,7 @@ jobs:
       - name: Build docs
         run: |
           cd VTray
-          ./docs.vsh
+          v run ./docs.vsh
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v2
         with:
