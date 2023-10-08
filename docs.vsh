@@ -1,3 +1,8 @@
+/**
+* All credit for this script goes to Turiiya (AKA ttytm) as its part of his build script, it was taken from his Webview project and slightly modified.
+* https://github.com/ttytm/webview
+**/
+
 import cli
 import os
 import regex

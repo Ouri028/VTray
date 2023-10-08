@@ -1,3 +1,8 @@
+#
+# All credit for this workflow goes to Turiiya (AKA ttytm) it was taken from his Webview project and slightly modified.
+# https://github.com/ttytm/webview
+#
+
 # Simple workflow for deploying static content to GitHub Pages
 name: Deploy docs to GitHub Pages
 
