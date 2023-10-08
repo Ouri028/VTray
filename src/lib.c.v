@@ -38,8 +38,7 @@ struct VTrayParams {
 	on_click   fn (menu_item &MenuItem) = unsafe { nil }
 }
 
-[heap]
-struct MenuItem {
+pub struct MenuItem {
 pub:
 	id        int
 	text      string

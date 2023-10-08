@@ -9,7 +9,7 @@ mut:
 	identifier string
 	tooltip    string
 	items      []&MenuItem
-	callbacks  map[int]fn ()
+	callbacks  map[int]ItemCallback
 	last_id    int = 1
 }
 
@@ -25,8 +25,10 @@ pub struct MenuItemOptions {
 	checked   bool
 	checkable bool
 	disabled  bool
-	on_click  ?fn ()
+	on_click  ?ItemCallback
 }
+
+type ItemCallback = fn () | fn (menu_item &MenuItem)
 
 // create creates the tray.
 // On macOS, the tray icon size must be 22x22 pixels to be rendered correctly.
@@ -75,8 +77,14 @@ pub fn (mut t Tray) run() {
 		tooltip: t.tooltip
 		icon: t.icon
 		on_click: fn [t] (menu_item &MenuItem) {
-			if cb := t.callbacks[menu_item.id] {
-				cb()
+			cb := t.callbacks[menu_item.id] or { return }
+			match cb {
+				fn (menu_item &MenuItem) {
+					cb(menu_item)
+				}
+				fn () {
+					cb()
+				}
 			}
 		}
 	}, usize(t.items.len), t.items.data)
