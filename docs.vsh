@@ -23,6 +23,8 @@ fn build_docs() ! {
 	mut vtray_html := read_file('_docs/vtray.html')!
 	vtray_html = rm_readme_section(vtray_html)
 	write_file('_docs/vtray.html', vtray_html)!
+	os.cp_all('assets', '_docs/assets', true)!
+	
 }
 
 mut cmd := cli.Command{

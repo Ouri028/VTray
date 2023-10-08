@@ -13,6 +13,8 @@ VTray is a cross-platform V library to place an icon and menu in the notificatio
 - [x] Supported on MacOS
 - [x] Menu items can be checked/unchecked
 - [x] Menu items can be enabled/disabled
+- [x] Dynamically update icon
+- [x] Dynamically update tooltip
 - [ ] Allow menus to have their own icons
 - [ ] Allow submenus within menus
 
