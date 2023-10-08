@@ -11,13 +11,11 @@ fn main() {
 	mut tray := vtray.create(icon, tooltip: 'VTray Demo!')
 	tray.add_item('Edit',
 		checkable: true
-		on_click: fn [tray] () {
-			if x := tray.get_item('Edit') {
-				if x.checked {
-					tray.set_icon('${@VMODROOT}/assets/test.ico')
-				} else {
-					tray.set_icon('${@VMODROOT}/assets/icon.ico')
-				}
+		on_click: fn [tray] (item &vtray.MenuItem) {
+			if item.checked {
+				tray.set_icon('${@VMODROOT}/assets/test.ico')
+			} else {
+				tray.set_icon('${@VMODROOT}/assets/icon.ico')
 			}
 		}
 	)
