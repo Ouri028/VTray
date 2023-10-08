@@ -38,15 +38,6 @@ struct VTrayParams {
 	on_click   fn (menu_item &MenuItem) = unsafe { nil }
 }
 
-pub struct MenuItem {
-pub:
-	id        int
-	text      string
-	checked   bool
-	checkable bool
-	disabled  bool
-}
-
 fn C.vtray_init(params &VTrayParams, num_items usize, items []&MenuItem) &VTray
 fn C.vtray_run(tray &VTray)
 fn C.vtray_exit(tray &VTray)

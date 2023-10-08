@@ -13,6 +13,15 @@ mut:
 	last_id    int = 1
 }
 
+pub struct MenuItem {
+pub:
+	id        int
+	text      string
+	checked   bool
+	checkable bool
+	disabled  bool
+}
+
 [params]
 pub struct CreatOptions {
 	identifier string = 'VTray'
